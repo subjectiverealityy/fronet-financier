@@ -40,7 +40,7 @@ export default PeriodSelector
 // ─── KPIStrip ────────────────────────────────────────────────────────────────
 
 // Placeholder data — swap each value with useQuery(getKPIs(...)) once API is live
-const MOCK_KPIS = {
+export const MOCK_KPIS = {
   financierEarnings: 112860,
   financierSharePct: 40,
   grossRevenue: 282149,
@@ -65,7 +65,7 @@ export function KPIStrip() {
         </p>
         <p className="text-2xl font-semibold text-brand">{formatNaira(kpis.financierEarnings)}</p>
         <p className="text-[11px] text-brand/50 mt-0.5">
-          {kpis.financierSharePct}% financier share
+          {kpis.financierSharePct}% of gross revenue
           {selectedView !== 'all' ? ` · ${getMonthName(selectedMonth)} ${selectedYear}` : ''}
         </p>
       </div>
@@ -99,7 +99,7 @@ export function MarketplaceBanner({ onClick }: { onClick: () => void }) {
         <p className="text-[10px] text-brand/60 uppercase tracking-wider mb-0.5">
           FroNet Marketplace
         </p>
-        <p className="text-sm font-medium text-text-primary">Browse investment offers</p>
+        <p className="text-sm font-medium text-text-primary">Browse Active Offers</p>
         <p className="text-xs text-text-tertiary mt-0.5">4 active offers available</p>
       </div>
       <span className="w-8 h-8 bg-brand/15 rounded-full flex items-center justify-center flex-shrink-0">

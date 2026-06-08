@@ -1,6 +1,7 @@
 import { Card, CardHeader, Dot, StatusBadge, ViewAllFooter } from '@/components/ui'
-import { formatNaira, formatNairaFull, formatGB, getInitials } from '@/lib/utils'
+import { formatNaira, formatGB } from '@/lib/utils'
 import { useDashboardStore } from '@/store/dashboardStore'
+import { MOCK_KPIS } from '../PeriodSelector'
 
 // ─── Revenue Tab ─────────────────────────────────────────────────────────────
 
@@ -10,15 +11,15 @@ export function RevenueTab() {
   return (
     <>
       {/* Revenue share */}
-      <Card>
+      <Card className="border-brand/30 bg-brand/5">
         <CardHeader>
           <div>
-            <p className="card-title">Your revenue share</p>
-            <p className="card-subtitle">40% of gross{selectedView !== 'all' ? ' · ' + selectedView : ''}</p>
+            <p className="text-sm font-semibold text-brand">Your revenue share</p>
+            <p className="text-xs text-brand/60 mt-0.5">{selectedView === 'all' ? 'All hostels' : selectedView}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm font-medium text-brand">{formatNaira(112860)}</p>
-            <p className="text-xs text-text-tertiary mt-0.5">40%</p>
+            <p className="text-base font-bold text-brand">{formatNaira(MOCK_KPIS.financierEarnings)}</p>
+            <p className="text-xs text-brand/60 mt-0.5">{MOCK_KPIS.financierSharePct}%</p>
           </div>
         </CardHeader>
 
@@ -79,7 +80,7 @@ export function RevenueTab() {
         <CardHeader><p className="card-title">Payment channel summary</p></CardHeader>
         {[
           { channel: 'Bank Transfer', txns: 67, revenue: 180213, pct: 63.9, color: '#03c9a6' },
-          { channel: 'OPay (iBank)', txns: 34, revenue: 101936, pct: 36.1, color: '#3d8eff' },
+          { channel: 'OPay (Bank)', txns: 34, revenue: 101936, pct: 36.1, color: '#3d8eff' },
           { channel: 'PalmPay', txns: 3, revenue: 3000, pct: 0, color: '#f5a623' },
           { channel: 'Unknown', txns: 1, revenue: 500, pct: 0, color: '#555' },
         ].map((c) => (
@@ -113,10 +114,14 @@ const MOCK_TXNS = [
   { id: '6', date: 'Apr 22', customerName: 'Daniel Adeyeoluwa', amount: 9559, fees: 243.39, net: 9315.61, status: 'Success' as const, channel: 'BT' as const, apLocation: '1st Floor 4', hostel: 'ZAHA Hostel' },
 ]
 
-export function TransactionsTab() {
-  const { selectedView } = useDashboardStore()
-  const isAll = selectedView === 'all'
+const CHANNEL_LABELS: Record<string, string> = {
+  BT: 'Bank Transfer',
+  bank: 'Bank Transfer',
+  card: 'Card',
+  unknown: 'Unknown',
+}
 
+export function TransactionsTab() {
   return (
     <Card>
       <CardHeader>
@@ -125,23 +130,12 @@ export function TransactionsTab() {
       </CardHeader>
       {MOCK_TXNS.map((txn) => (
         <div key={txn.id} className="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-b-0">
-          {/* Avatar */}
-          <div className="w-8 h-8 rounded-full bg-surface-2 border border-border flex items-center
-                          justify-center text-[10px] font-semibold text-text-secondary flex-shrink-0">
-            {getInitials(txn.customerName)}
-          </div>
           {/* Info */}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-text-primary truncate">{txn.customerName}</p>
             <p className="text-xs text-text-tertiary mt-0.5">
-              {txn.date} · {txn.channel} · {txn.apLocation}
+              {txn.date} · {CHANNEL_LABELS[txn.channel] ?? txn.channel} · {txn.hostel ?? txn.apLocation}
             </p>
-            {isAll && (
-              <span className="inline-block mt-1 text-[10px] font-medium px-1.5 py-0.5
-                               bg-surface-2 text-text-tertiary rounded">
-                {txn.hostel}
-              </span>
-            )}
           </div>
           {/* Right */}
           <div className="flex flex-col items-end gap-1 flex-shrink-0">

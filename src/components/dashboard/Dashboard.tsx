@@ -32,8 +32,8 @@ export default function Dashboard() {
       {/* Topbar */}
       <div className="bg-surface-1 border-b border-border safe-top relative z-20">
         <div className="px-4 pt-4 pb-3">
-          <p className="text-[10px] text-text-tertiary uppercase tracking-widest mb-1">
-            FroNet · Financier Dashboard
+          <p className="text-lg font-bold text-text-primary mb-1">
+            Fronet Financier
           </p>
           <LocationDropdown
             open={dropdownOpen}

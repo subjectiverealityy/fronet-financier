@@ -96,7 +96,7 @@ function OfferCard({ offer, kycDone }: { offer: Offer; kycDone: boolean }) {
           {[
             { label: 'Rooms', value: offer.rooms },
             { label: 'Cost of install', value: formatNaira(offer.costOfInstall) },
-            { label: 'Proj. returns', value: `~${offer.projectedReturns}%` },
+            { label: 'Projected returns', value: `${offer.projectedReturns}%` },
           ].map((s, i) => (
             <div key={s.label} className={['px-2.5 py-2', i < 2 ? 'border-r border-border' : ''].join(' ')}>
               <p className="text-[10px] text-text-tertiary mb-1">{s.label}</p>

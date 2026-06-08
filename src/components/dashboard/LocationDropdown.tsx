@@ -51,7 +51,7 @@ export default function LocationDropdown({ open, onToggle, onClose }: Props) {
           </p>
           <DropdownItem
             name="All deployments"
-            sub={`Aggregated across ${MY_LOCATIONS.length} locations`}
+            sub={`Across your ${MY_LOCATIONS.length} locations`}
             active={selectedView === 'all'}
             onClick={() => select('all')}
           />

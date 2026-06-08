@@ -65,7 +65,7 @@
   }
 
   .kpi-card {
-    @apply bg-surface-2 border border-border rounded-card p-3;
+    @apply bg-[#1e1e1e] border border-border rounded-card p-3;
   }
 
   .kpi-label {

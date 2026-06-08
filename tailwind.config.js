@@ -19,14 +19,14 @@ export default {
         },
         // Borders
         border: {
-          DEFAULT: 'rgba(255, 255, 255, 0.08)',
-          strong: 'rgba(255, 255, 255, 0.14)',
+          DEFAULT: 'rgba(255, 255, 255, 0.12)',
+          strong: 'rgba(255, 255, 255, 0.20)',
         },
         // Text
         text: {
           primary: '#ffffff',
-          secondary: 'rgba(255, 255, 255, 0.65)',
-          tertiary: 'rgba(255, 255, 255, 0.38)',
+          secondary: 'rgba(255, 255, 255, 0.75)',
+          tertiary: 'rgba(255, 255, 255, 0.65)',
         },
         // Semantic
         danger: '#ff5a5a',
