@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
-import { Card, CardHeader } from '@/components/ui'
+import { Card } from '@/components/ui'
 import { formatNaira } from '@/lib/utils'
 import type { Offer, DeploymentStage } from '@/types'
 
@@ -79,7 +79,6 @@ function KYCBanner({ onComplete }: { onComplete: () => void }) {
 
 function OfferCard({ offer, kycDone }: { offer: Offer; kycDone: boolean }) {
   const currentStageIndex = STAGES.indexOf(offer.stage)
-  const fundingPct = Math.round((offer.fundingRaised / offer.fundingTarget) * 100)
 
   return (
     <Card>

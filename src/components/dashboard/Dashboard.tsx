@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useAuthStore } from '@/store/authStore'
 import { Chip } from '@/components/ui'
+import { getInitials } from '@/lib/utils'
 import LocationDropdown from './LocationDropdown'
 import PeriodSelector from './PeriodSelector'
 // import KPIStrip from './KPIStrip'
@@ -32,9 +33,17 @@ export default function Dashboard() {
       {/* Topbar */}
       <div className="bg-surface-1 border-b border-border safe-top relative z-20">
         <div className="px-4 pt-4 pb-3">
-          <p className="text-lg font-bold text-text-primary mb-1">
-            Fronet Financier
-          </p>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-lg font-bold text-text-primary">Fronet Financier</p>
+            {user && (
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-text-tertiary">{user.name}</p>
+                <div className="w-7 h-7 rounded-full bg-brand/15 border border-brand/30 flex items-center justify-center text-[10px] font-semibold text-brand flex-shrink-0">
+                  {getInitials(user.name)}
+                </div>
+              </div>
+            )}
+          </div>
           <LocationDropdown
             open={dropdownOpen}
             onToggle={() => setDropdownOpen((o) => !o)}
