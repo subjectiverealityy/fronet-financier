@@ -11,7 +11,7 @@ export default defineConfig({
       manifest: {
         name: 'FroNet Financier',
         short_name: 'FroNet',
-        description: 'FroNet Financier Control App — monitor your deployments and browse investment opportunities.',
+        description: 'FroNet Financier App — monitor your deployments and browse active offers.',
         theme_color: '#0a0a0a',
         background_color: '#0a0a0a',
         display: 'standalone',

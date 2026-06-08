@@ -1,4 +1,4 @@
-# FroNet Financier Control App
+# FroNet Financier App
 
 PWA built with React + TypeScript + Vite + Tailwind CSS.
 
