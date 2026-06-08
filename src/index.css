@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    background-color: #0a0a0a;
+    color: #ffffff;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+
+  body {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    overscroll-behavior: none;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface-1 border border-border rounded-card overflow-hidden;
+  }
+
+  .card-header {
+    @apply px-4 py-3 border-b border-border flex items-center justify-between;
+  }
+
+  .card-title {
+    @apply text-sm font-medium text-text-primary;
+  }
+
+  .card-subtitle {
+    @apply text-xs text-text-tertiary mt-0.5;
+  }
+
+  .btn-brand {
+    @apply bg-brand text-surface-base text-xs font-semibold px-4 py-2 rounded-pill
+           active:scale-95 transition-transform;
+  }
+
+  .btn-ghost {
+    @apply bg-surface-2 border border-border text-text-secondary text-xs font-medium
+           px-4 py-2 rounded-pill active:scale-95 transition-transform;
+  }
+
+  .chip {
+    @apply text-sm py-2.5 px-3.5 border-b-2 border-transparent text-text-tertiary
+           cursor-pointer whitespace-nowrap transition-colors;
+  }
+
+  .chip-active {
+    @apply text-brand border-brand font-medium;
+  }
+
+  .kpi-card {
+    @apply bg-surface-2 border border-border rounded-card p-3;
+  }
+
+  .kpi-label {
+    @apply text-xs text-text-tertiary mb-1;
+  }
+
+  .kpi-value {
+    @apply text-lg font-medium text-text-primary;
+  }
+
+  .row-item {
+    @apply flex items-center justify-between px-4 py-2.5
+           border-b border-border last:border-b-0;
+  }
+
+  .badge {
+    @apply text-[10px] font-semibold px-2 py-0.5 rounded;
+  }
+
+  .badge-success {
+    @apply bg-brand/10 text-brand;
+  }
+
+  .badge-abandoned {
+    @apply bg-warning/10 text-warning;
+  }
+
+  .badge-failed {
+    @apply bg-danger/10 text-danger;
+  }
+
+  /* Safe area padding for PWA */
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+}
