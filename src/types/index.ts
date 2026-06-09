@@ -112,6 +112,7 @@ export interface Offer {
   fundingTarget: number
   stage: DeploymentStage
   fullyFunded: boolean
+  gps: string
 }
 
 // ─── Utility ─────────────────────────────────────────────────────────────────

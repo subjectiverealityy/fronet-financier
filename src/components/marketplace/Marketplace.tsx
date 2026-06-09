@@ -5,9 +5,9 @@ import { formatNaira } from '@/lib/utils'
 import type { Offer, DeploymentStage } from '@/types'
 
 const MOCK_OFFERS: Offer[] = [
-  { id: '1', name: 'Greenfield Hostel', institution: 'University of Ilorin', state: 'Kwara State', rooms: 120, costOfInstall: 800000, projectedReturns: 40, fundingRaised: 1600000, fundingTarget: 2400000, stage: 'invested', fullyFunded: false },
-  { id: '2', name: 'Lekki Student Lodge', institution: 'University of Lagos', state: 'Lagos State', rooms: 80, costOfInstall: 600000, projectedReturns: 38, fundingRaised: 1400000, fundingTarget: 1800000, stage: 'procured', fullyFunded: false },
-  { id: '3', name: 'Capitol View Hostel', institution: 'University of Abuja', state: 'FCT', rooms: 200, costOfInstall: 1200000, projectedReturns: 42, fundingRaised: 3600000, fundingTarget: 3600000, stage: 'paid', fullyFunded: true },
+  { id: '1', name: 'Greenfield Hostel', institution: 'University of Ilorin', state: 'Kwara State', rooms: 120, costOfInstall: 800000, projectedReturns: 40, fundingRaised: 1600000, fundingTarget: 2400000, stage: 'invested', fullyFunded: false, gps: 'https://x.com' },
+  { id: '2', name: 'Lekki Student Lodge', institution: 'University of Lagos', state: 'Lagos State', rooms: 80, costOfInstall: 600000, projectedReturns: 38, fundingRaised: 1400000, fundingTarget: 1800000, stage: 'procured', fullyFunded: false, gps: 'https://x.com' },
+  { id: '3', name: 'Capitol View Hostel', institution: 'University of Abuja', state: 'FCT', rooms: 200, costOfInstall: 1200000, projectedReturns: 42, fundingRaised: 3600000, fundingTarget: 3600000, stage: 'paid', fullyFunded: true, gps: 'https://x.com' },
 ]
 
 const STAGES: DeploymentStage[] = ['paid', 'procured', 'invested', 'live']
@@ -90,7 +90,7 @@ function OfferCard({ offer, kycDone }: { offer: Offer; kycDone: boolean }) {
       {/* Body */}
       <div className="px-4 py-3 border-b border-border">
         <p className="text-base font-medium text-text-primary mb-0.5">{offer.name}</p>
-        <p className="text-xs text-text-tertiary mb-3">{offer.institution}, {offer.state}</p>
+        <p className="text-xs text-text-tertiary mb-3">{offer.institution}, {offer.state} <a href={offer.gps}className="text-brand">(GPS Location)</a></p>
         <div className="grid grid-cols-3 border border-border rounded-lg overflow-hidden">
           {[
             { label: 'Rooms', value: offer.rooms },
@@ -152,9 +152,9 @@ function OfferCard({ offer, kycDone }: { offer: Offer; kycDone: boolean }) {
         {offer.fullyFunded ? (
           <button disabled className="btn-ghost opacity-50 cursor-default text-xs">Fully funded</button>
         ) : !kycDone ? (
-          <button className="btn-brand text-xs">Invest now</button>
+          <button className="btn-brand text-xs">Fund now</button>
         ) : (
-          <button className="btn-brand text-xs">Invest now</button>
+          <button className="btn-brand text-xs">Fund now</button>
         )}
       </div>
     </Card>
