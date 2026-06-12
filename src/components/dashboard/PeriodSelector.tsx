@@ -43,6 +43,7 @@ export default PeriodSelector
 export const MOCK_KPIS = {
   financierEarnings: 112860,
   financierSharePct: 40,
+  myStakePct: 15,
   grossRevenue: 282149,
   netRevenue: 275916,
   successfulTxns: 101,
@@ -67,7 +68,9 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
         </p>
         <p className="text-2xl font-semibold text-brand">{formatNaira(kpis.financierEarnings)}</p>
         <p className="text-[11px] text-brand/50 mt-0.5">
-          {kpis.financierSharePct}% of gross revenue
+          {selectedView === 'all'
+            ? `Across all your deployments`
+            : `${kpis.myStakePct}% stake · ${kpis.financierSharePct}% of gross revenue`}
           {selectedView !== 'all' ? ` · ${getMonthName(selectedMonth)} ${selectedYear}` : ''}
         </p>
       </div>

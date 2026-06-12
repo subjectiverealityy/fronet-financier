@@ -16,6 +16,8 @@ export interface Location {
   institution: string
   state: string
   status: 'live' | 'pending'
+  myStakePct: number        
+  myEarnings: number
 }
 
 // ─── Dashboard ───────────────────────────────────────────────────────────────
@@ -30,7 +32,9 @@ export interface KPIs {
   paystackFees: number
   financierEarnings: number
   financierSharePct: number
-  payoutBalance: number        
+  myStakePct: number
+  payoutBalance: number 
+  payoutStatus: 'none' | 'pending'       
   lastPayoutAt?: string
 }
 

@@ -3,9 +3,9 @@ import { cn } from '@/lib/utils'
 
 // Placeholder locations — replace with useQuery(getMyLocations) once API is live
 const MY_LOCATIONS = [
-  { id: 'bims', name: 'Bims Hostel', institution: 'University of Ilorin', status: 'Live' },
-  { id: 'zaha', name: 'ZAHA Hostel', institution: 'University of Lagos', status: 'Live' },
-  { id: 'kings', name: 'Kings Court', institution: 'Covenant University', status: 'Live' },
+  { id: 'bims', name: 'Bims Hostel', institution: 'University of Ilorin', status: 'Live', myStakePct: 15 },
+  { id: 'zaha', name: 'ZAHA Hostel', institution: 'University of Lagos', status: 'Live', myStakePct: 100 },
+  { id: 'kings', name: 'Kings Court', institution: 'Covenant University', status: 'Live', myStakePct: 32 },
 ]
 
 interface Props {
@@ -64,7 +64,7 @@ export default function LocationDropdown({ open, onToggle, onClose }: Props) {
             <DropdownItem
               key={loc.id}
               name={loc.name}
-              sub={`${loc.institution} · ${loc.status}`}
+              sub={`${loc.institution} · ${loc.status} · ${loc.myStakePct}% stake`}
               active={selectedView === loc.id}
               onClick={() => select(loc.id)}
             />

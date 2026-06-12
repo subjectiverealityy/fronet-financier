@@ -1,5 +1,5 @@
 import { Card, CardHeader, Dot, StatusBadge, ViewAllFooter } from '@/components/ui'
-import { formatNaira, formatGB } from '@/lib/utils'
+import { formatNaira, formatNairaFull, formatGB, getInitials } from '@/lib/utils'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { MOCK_KPIS } from '../PeriodSelector'
 
@@ -14,12 +14,16 @@ export function RevenueTab() {
       <Card className="border-brand/30 bg-brand/5">
         <CardHeader>
           <div>
-            <p className="text-sm font-semibold text-brand">Your revenue share</p>
-            <p className="text-xs text-brand/60 mt-0.5">{selectedView === 'all' ? 'All hostels' : selectedView}</p>
+            <p className="card-title">Your revenue share</p>
+            <p className="card-subtitle">
+              {selectedView === 'all'
+                ? 'Aggregated across all deployments'
+                : `15% stake · 6% of gross · Bims Hostel`}
+            </p>
           </div>
           <div className="text-right">
-            <p className="text-base font-bold text-brand">{formatNaira(MOCK_KPIS.financierEarnings)}</p>
-            <p className="text-xs text-brand/60 mt-0.5">{MOCK_KPIS.financierSharePct}%</p>
+            <p className="text-sm font-medium text-brand">{formatNaira(16929)}</p>
+            {selectedView !== 'all' && <p className="text-xs text-text-tertiary mt-0.5">6%</p>}
           </div>
         </CardHeader>
 
@@ -27,9 +31,9 @@ export function RevenueTab() {
         {selectedView === 'all' && (
           <div>
             {[
-              { name: 'Bims Hostel', sub: 'University of Ilorin', amt: 112860, pct: 52, color: '#03c9a6' },
-              { name: 'ZAHA Hostel', sub: 'University of Lagos', amt: 89400, pct: 41, color: '#3d8eff' },
-              { name: 'Kings Court', sub: 'Covenant University', amt: 15320, pct: 7, color: '#f5a623' },
+              { name: 'Bims Hostel', sub: 'University of Ilorin', stake: 15, amt: 16929, color: '#03c9a6' },
+              { name: 'ZAHA Hostel', sub: 'University of Lagos', stake: 100, amt: 89400, color: '#3d8eff' },
+              { name: 'Kings Court', sub: 'Covenant University', stake: 32, amt: 4902, color: '#f5a623' },
             ].map((loc) => (
               <div key={loc.name} className="row-item">
                 <div className="flex items-center gap-2">
@@ -41,7 +45,7 @@ export function RevenueTab() {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-medium text-text-primary">{formatNaira(loc.amt)}</p>
-                  <p className="text-xs text-text-tertiary mt-0.5">{loc.pct}%</p>
+                  <p className="text-xs text-text-tertiary mt-0.5">{loc.stake}%</p>
                 </div>
               </div>
             ))}
