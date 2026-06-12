@@ -1,7 +1,7 @@
 import { Card, CardHeader, Dot, StatusBadge, ViewAllFooter } from '@/components/ui'
-import { formatNaira, formatNairaFull, formatGB, getInitials } from '@/lib/utils'
+import { formatNaira, formatNairaFull, formatGB } from '@/lib/utils'
 import { useDashboardStore } from '@/store/dashboardStore'
-import { MOCK_KPIS } from '../PeriodSelector'
+// import { MOCK_KPIS } from '../PeriodSelector'
 
 // ─── Revenue Tab ─────────────────────────────────────────────────────────────
 

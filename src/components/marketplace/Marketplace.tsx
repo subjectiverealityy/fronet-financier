@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
-import { Card, CardHeader } from '@/components/ui'
+import { Card } from '@/components/ui'
 import { formatNaira } from '@/lib/utils'
 import type { Offer, DeploymentStage } from '@/types'
 
