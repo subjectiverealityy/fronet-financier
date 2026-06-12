@@ -50,9 +50,11 @@ export const MOCK_KPIS = {
   wifiUsers: 48,
   failedTxns: 17,
   paystackFees: 6233,
+  payoutBalance: 173790,  
+  payoutStatus: 'none' as 'none' | 'pending',       
 }
 
-export function KPIStrip() {
+export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
   const { selectedView, selectedMonth, selectedYear } = useDashboardStore()
   const kpis = MOCK_KPIS
 
@@ -68,6 +70,21 @@ export function KPIStrip() {
           {kpis.financierSharePct}% of gross revenue
           {selectedView !== 'all' ? ` · ${getMonthName(selectedMonth)} ${selectedYear}` : ''}
         </p>
+      </div>
+
+      {/* Payout balance + CTA */}
+      <div className="bg-surface-2 border border-border rounded-card p-4 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs text-text-tertiary mb-1">Available for payout</p>
+          <p className="text-lg font-medium text-text-primary">{formatNaira(kpis.payoutBalance)}</p>
+        </div>
+        <button
+          onClick={onRequestPayout}
+          disabled={kpis.payoutBalance <= 0 || kpis.payoutStatus === 'pending'}
+          className="btn-brand text-xs whitespace-nowrap disabled:opacity-40 disabled:cursor-default"
+        >
+          {kpis.payoutStatus === 'pending' ? 'Payout requested →' : 'Request payout →'}
+        </button>
       </div>
 
       {/* KPI grid */}

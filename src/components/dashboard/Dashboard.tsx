@@ -6,13 +6,9 @@ import { Chip } from '@/components/ui'
 import { getInitials } from '@/lib/utils'
 import LocationDropdown from './LocationDropdown'
 import PeriodSelector from './PeriodSelector'
-// import KPIStrip from './KPIStrip'
-// import RevenueTab from './tabs/RevenueTab'
-// import TransactionsTab from './tabs/TransactionsTab'
-// import NetworkTab from './tabs/NetworkTab'
 import { RevenueTab, TransactionsTab, NetworkTab } from './tabs/RevenueTab'
-// import MarketplaceBanner from './MarketplaceBanner'
-import { KPIStrip, MarketplaceBanner } from './PeriodSelector'
+import { KPIStrip, MarketplaceBanner, MOCK_KPIS } from './PeriodSelector'
+import PayoutModal from './PayoutModal'
 import type { DashboardTab } from '@/types'
 
 const TABS: { id: DashboardTab; label: string }[] = [
@@ -24,8 +20,14 @@ const TABS: { id: DashboardTab; label: string }[] = [
 export default function Dashboard() {
   const { activeTab, setActiveTab } = useDashboardStore()
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [payoutModalOpen, setPayoutModalOpen] = useState(false)
   const navigate = useNavigate()
   const { user } = useAuthStore()
+
+  async function handleConfirmPayout() {
+    // TODO: replace with requestPayout({ amount: MOCK_KPIS.payoutBalance })
+    await new Promise((r) => setTimeout(r, 1000))
+  }
 
   return (
     <div className="min-h-dvh bg-surface-base flex flex-col max-w-md mx-auto">
@@ -55,7 +57,7 @@ export default function Dashboard() {
 
       {/* KPI strip */}
       <div className="bg-surface-1 border-b border-border px-4 py-3 flex flex-col gap-2">
-        <KPIStrip />
+        <KPIStrip onRequestPayout={() => setPayoutModalOpen(true)} />
       </div>
 
       {/* Tabs */}
@@ -86,6 +88,14 @@ export default function Dashboard() {
           onClick={() => setDropdownOpen(false)}
         />
       )}
+
+      {/* Payout modal */}
+      <PayoutModal
+        open={payoutModalOpen}
+        balance={MOCK_KPIS.payoutBalance}
+        onClose={() => setPayoutModalOpen(false)}
+        onConfirm={handleConfirmPayout}
+      />
     </div>
   )
 }

@@ -8,6 +8,7 @@ import type {
   Transaction,
   Offer,
   Location,
+  PayoutRequest,
 } from '@/types'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'https://api.fronet.app'
@@ -94,6 +95,17 @@ export const getOffers = () => apiFetch<Offer[]>('/marketplace/offers')
 
 export const submitKYC = (payload: { nin: string; bvn: string }) =>
   apiFetch<{ status: string }>('/kyc/submit', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+// ─── Payouts ─────────────────────────────────────────────────────────────────
+
+export const getPayoutHistory = () =>
+  apiFetch<PayoutRequest[]>('/financier/payouts')
+
+export const requestPayout = (payload: { amount: number }) =>
+  apiFetch<PayoutRequest>('/financier/payouts/request', {
     method: 'POST',
     body: JSON.stringify(payload),
   })

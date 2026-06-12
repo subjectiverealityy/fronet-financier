@@ -30,6 +30,8 @@ export interface KPIs {
   paystackFees: number
   financierEarnings: number
   financierSharePct: number
+  payoutBalance: number        
+  lastPayoutAt?: string
 }
 
 export interface PlanBreakdown {
@@ -119,3 +121,15 @@ export interface Offer {
 
 export type DashboardView = 'all' | string // 'all' or a location id
 export type DashboardTab = 'revenue' | 'transactions' | 'network'
+
+// ─── Payouts ─────────────────────────────────────────────────────────────────
+
+export type PayoutStatus = 'pending' | 'processing' | 'paid' | 'failed'
+
+export interface PayoutRequest {
+  id: string
+  amount: number
+  status: PayoutStatus
+  requestedAt: string
+  processedAt?: string
+}
