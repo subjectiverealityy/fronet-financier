@@ -43,8 +43,8 @@ export default function LocationDropdown({ open, onToggle, onClose }: Props) {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-surface-1 border border-border-strong
-                        rounded-card overflow-hidden shadow-2xl animate-fade-in">
+        <div className="absolute top-full left-0 mt-2 w-72 bg-surface-1 border border-border-strong
+                rounded-card overflow-hidden shadow-2xl animate-fade-in">
           {/* All deployments */}
           <p className="text-[10px] text-text-tertiary uppercase tracking-widest px-4 pt-3 pb-1.5">
             My deployments

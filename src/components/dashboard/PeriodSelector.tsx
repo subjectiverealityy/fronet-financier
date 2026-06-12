@@ -8,9 +8,9 @@ export function PeriodSelector() {
   const { selectedMonth, selectedYear, setSelectedMonth, setSelectedYear } = useDashboardStore()
 
   return (
-    <div className="flex gap-2 mt-2.5">
+    <div className="flex gap-2 mt-2.5 md:mt-0">
       <select
-        className="flex items-center gap-1 text-xs text-text-secondary bg-surface-2
+        className="mamama flex items-center gap-1 text-xs text-text-secondary bg-surface-2
                    border border-border-strong rounded-pill px-3 py-1.5 appearance-none
                    focus:outline-none focus:border-brand/50"
         value={selectedMonth}
@@ -51,8 +51,8 @@ export const MOCK_KPIS = {
   wifiUsers: 48,
   failedTxns: 17,
   paystackFees: 6233,
-  payoutBalance: 173790,  
-  payoutStatus: 'none' as 'none' | 'pending',       
+  payoutBalance: 173790,
+  payoutStatus: 'none' as 'none' | 'pending',
 }
 
 export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
@@ -60,38 +60,43 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
   const kpis = MOCK_KPIS
 
   return (
-    <>
-      {/* Earnings highlight */}
-      <div className="bg-brand/10 border border-brand/20 rounded-card p-4">
-        <p className="text-[10px] text-brand/60 uppercase tracking-wider mb-1">
-          {selectedView === 'all' ? 'Total earnings this month' : 'Your earnings this month'}
-        </p>
-        <p className="text-2xl font-semibold text-brand">{formatNaira(kpis.financierEarnings)}</p>
-        <p className="text-[11px] text-brand/50 mt-0.5">
-          {selectedView === 'all'
-            ? `Across all your deployments`
-            : `${kpis.myStakePct}% stake · ${kpis.financierSharePct}% of gross revenue`}
-          {selectedView !== 'all' ? ` · ${getMonthName(selectedMonth)} ${selectedYear}` : ''}
-        </p>
-      </div>
+    <div className="flex flex-col gap-2">
 
-      {/* Payout balance + CTA */}
-      <div className="bg-surface-2 border border-border rounded-card p-4 flex items-center justify-between gap-3">
-        <div>
-          <p className="text-xs text-text-tertiary mb-1">Available for payout</p>
-          <p className="text-lg font-medium text-text-primary">{formatNaira(kpis.payoutBalance)}</p>
+      <div className='flex gap-2'>
+        {/* Earnings highlight */}
+        <div className="bg-brand/10 border border-brand/20 rounded-card p-4 md:flex-[1.4] md:flex md:flex-col md:justify-center">
+          <p className="text-[10px] text-brand/60 uppercase tracking-wider mb-1">
+            {selectedView === 'all' ? 'Total earnings this month' : 'Your earnings this month'}
+          </p>
+          <p className="text-2xl font-semibold text-brand">{formatNaira(kpis.financierEarnings)}</p>
+          <p className="text-[11px] text-brand/50 mt-0.5">
+            {selectedView === 'all'
+              ? `Across all your deployments`
+              : `${kpis.myStakePct}% stake · ${kpis.financierSharePct}% of gross revenue`}
+            {selectedView !== 'all' ? ` · ${getMonthName(selectedMonth)} ${selectedYear}` : ''}
+          </p>
         </div>
-        <button
-          onClick={onRequestPayout}
-          disabled={kpis.payoutBalance <= 0 || kpis.payoutStatus === 'pending'}
-          className="btn-brand text-xs whitespace-nowrap disabled:opacity-40 disabled:cursor-default"
-        >
-          {kpis.payoutStatus === 'pending' ? 'Payout requested →' : 'Request payout →'}
-        </button>
+
+        {/* Payout balance + CTA */}
+        <div className="bg-surface-2 border border-border rounded-card p-4 flex items-center justify-between gap-3
+                        md:flex-1 md:flex-col md:items-start md:justify-center md:gap-2">
+          <div>
+            <p className="text-xs text-text-tertiary mb-1">Available for payout</p>
+            <p className="text-lg font-medium text-text-primary">{formatNaira(kpis.payoutBalance)}</p>
+          </div>
+          <button
+            onClick={onRequestPayout}
+            disabled={kpis.payoutBalance <= 0 || kpis.payoutStatus === 'pending'}
+            className="btn-brand text-xs whitespace-nowrap disabled:opacity-40 disabled:cursor-default
+                      md:w-full md:text-center"
+          >
+            {kpis.payoutStatus === 'pending' ? 'Payout requested →' : 'Request payout →'}
+          </button>
+        </div>
       </div>
 
       {/* KPI grid */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:flex-[2]">
         <KpiCard label="Gross revenue" value={formatNaira(kpis.grossRevenue)} />
         <KpiCard label="Net revenue" value={formatNaira(kpis.netRevenue)} />
         <KpiCard
@@ -102,7 +107,7 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
         <KpiCard label="Failed transactions" value={kpis.failedTxns} danger />
         <KpiCard label="Paystack fees" value={formatNaira(kpis.paystackFees)} />
       </div>
-    </>
+    </div>
   )
 }
 

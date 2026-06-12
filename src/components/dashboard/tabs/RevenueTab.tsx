@@ -53,56 +53,57 @@ export function RevenueTab() {
         )}
       </Card>
 
-      {/* Subscription plans */}
-      <Card>
-        <CardHeader><p className="card-title">Subscription plan breakdown</p></CardHeader>
-        {[
-          { plan: 'FroWeek', sessions: 39, avg: 2499, revenue: 97461, pct: 34.5 },
-          { plan: 'FroMonth', sessions: 6, avg: 9559, revenue: 57354, pct: 20.3 },
-          { plan: 'FroDay', sessions: 30, avg: 969, revenue: 29070, pct: 10.3 },
-          { plan: 'DuoMonth', sessions: 1, avg: 14699, revenue: 14699, pct: 5.2 },
-          { plan: 'DuoWeek', sessions: 3, avg: 3749, revenue: 11247, pct: 4.0 },
-          { plan: 'TriWeek', sessions: 2, avg: 4949, revenue: 9898, pct: 3.5 },
-        ].map((p) => (
-          <div key={p.plan} className="row-item">
-            <div>
-              <p className="text-sm font-medium text-text-primary">{p.plan}</p>
-              <p className="text-xs text-text-tertiary mt-0.5">
-                {p.sessions} sessions · average {formatNaira(p.avg)}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-text-primary">{formatNaira(p.revenue)}</p>
-              <p className="text-xs text-text-tertiary mt-0.5">{p.pct}%</p>
-            </div>
-          </div>
-        ))}
-      </Card>
-
-      {/* Payment channels */}
-      <Card>
-        <CardHeader><p className="card-title">Payment channel summary</p></CardHeader>
-        {[
-          { channel: 'Bank Transfer', txns: 67, revenue: 180213, pct: 63.9, color: '#03c9a6' },
-          { channel: 'OPay (Bank)', txns: 34, revenue: 101936, pct: 36.1, color: '#3d8eff' },
-          { channel: 'PalmPay', txns: 3, revenue: 3000, pct: 0, color: '#f5a623' },
-          { channel: 'Unknown', txns: 1, revenue: 500, pct: 0, color: '#555' },
-        ].map((c) => (
-          <div key={c.channel} className="row-item">
-            <div className="flex items-center gap-2">
-              <Dot color={c.color} />
+      {/* Subscription plans + Payment channels — side by side on desktop */}
+      <div className="flex flex-col md:flex-row gap-3">
+        <Card className="md:flex-1">
+          <CardHeader><p className="card-title">Subscription plan breakdown</p></CardHeader>
+          {[
+            { plan: 'FroWeek', sessions: 39, avg: 2499, revenue: 97461, pct: 34.5 },
+            { plan: 'FroMonth', sessions: 6, avg: 9559, revenue: 57354, pct: 20.3 },
+            { plan: 'FroDay', sessions: 30, avg: 969, revenue: 29070, pct: 10.3 },
+            { plan: 'DuoMonth', sessions: 1, avg: 14699, revenue: 14699, pct: 5.2 },
+            { plan: 'DuoWeek', sessions: 3, avg: 3749, revenue: 11247, pct: 4.0 },
+            { plan: 'TriWeek', sessions: 2, avg: 4949, revenue: 9898, pct: 3.5 },
+          ].map((p) => (
+            <div key={p.plan} className="row-item">
               <div>
-                <p className="text-sm text-text-primary">{c.channel}</p>
-                <p className="text-xs text-text-tertiary mt-0.5">{c.txns} transactions</p>
+                <p className="text-sm font-medium text-text-primary">{p.plan}</p>
+                <p className="text-xs text-text-tertiary mt-0.5">
+                  {p.sessions} sessions · average {formatNaira(p.avg)}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-text-primary">{formatNaira(p.revenue)}</p>
+                <p className="text-xs text-text-tertiary mt-0.5">{p.pct}%</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-text-primary">{formatNaira(c.revenue)}</p>
-              <p className="text-xs text-text-tertiary mt-0.5">{c.pct}%</p>
+          ))}
+        </Card>
+
+        <Card className="md:flex-1 h-fit">
+          <CardHeader><p className="card-title">Payment channel summary</p></CardHeader>
+          {[
+            { channel: 'Bank Transfer', txns: 67, revenue: 180213, pct: 63.9, color: '#03c9a6' },
+            { channel: 'OPay (Bank)', txns: 34, revenue: 101936, pct: 36.1, color: '#3d8eff' },
+            { channel: 'PalmPay', txns: 3, revenue: 3000, pct: 0, color: '#f5a623' },
+            { channel: 'Unknown', txns: 1, revenue: 500, pct: 0, color: '#555' },
+          ].map((c) => (
+            <div key={c.channel} className="row-item">
+              <div className="flex items-center gap-2">
+                <Dot color={c.color} />
+                <div>
+                  <p className="text-sm text-text-primary">{c.channel}</p>
+                  <p className="text-xs text-text-tertiary mt-0.5">{c.txns} transactions</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-text-primary">{formatNaira(c.revenue)}</p>
+                <p className="text-xs text-text-tertiary mt-0.5">{c.pct}%</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </Card>
+          ))}
+        </Card>
+      </div>
     </>
   )
 }
@@ -132,22 +133,59 @@ export function TransactionsTab() {
         <p className="card-title">Transactions</p>
         <p className="text-xs text-text-tertiary">118 total</p>
       </CardHeader>
-      {MOCK_TXNS.map((txn) => (
-        <div key={txn.id} className="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-b-0">
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-text-primary truncate">{txn.customerName}</p>
-            <p className="text-xs text-text-tertiary mt-0.5">
-              {txn.date} · {CHANNEL_LABELS[txn.channel] ?? txn.channel} · {txn.hostel ?? txn.apLocation}
-            </p>
+
+      {/* Mobile list */}
+      <div className="md:hidden">
+        {MOCK_TXNS.map((txn) => (
+          <div key={txn.id} className="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-b-0">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-text-primary truncate">{txn.customerName}</p>
+              <p className="text-xs text-text-tertiary mt-0.5">
+                {txn.date} · {CHANNEL_LABELS[txn.channel] ?? txn.channel} · {txn.hostel ?? txn.apLocation}
+              </p>
+            </div>
+            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+              <p className="text-sm font-medium text-text-primary">{formatNaira(txn.amount)}</p>
+              <StatusBadge status={txn.status} />
+            </div>
           </div>
-          {/* Right */}
-          <div className="flex flex-col items-end gap-1 flex-shrink-0">
-            <p className="text-sm font-medium text-text-primary">{formatNaira(txn.amount)}</p>
-            <StatusBadge status={txn.status} />
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left">
+              <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary">Date</th>
+              <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary">Customer</th>
+              <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary">Hostel</th>
+              <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary">AP location</th>
+              <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary">Channel</th>
+              <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary text-right">Amount</th>
+              <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary text-right">Fees</th>
+              <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary text-right">Net</th>
+              <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {MOCK_TXNS.map((txn) => (
+              <tr key={txn.id} className="border-b border-border last:border-b-0">
+                <td className="px-4 py-2.5 text-text-secondary">{txn.date}</td>
+                <td className="px-4 py-2.5 font-medium text-text-primary">{txn.customerName}</td>
+                <td className="px-4 py-2.5 text-text-secondary">{txn.hostel ?? '—'}</td>
+                <td className="px-4 py-2.5 text-text-secondary">{txn.apLocation}</td>
+                <td className="px-4 py-2.5 text-text-secondary">{CHANNEL_LABELS[txn.channel] ?? txn.channel}</td>
+                <td className="px-4 py-2.5 text-right font-medium text-text-primary">{formatNaira(txn.amount)}</td>
+                <td className="px-4 py-2.5 text-right text-text-secondary">{txn.fees ? formatNairaFull(txn.fees) : '—'}</td>
+                <td className="px-4 py-2.5 text-right text-text-secondary">{txn.net ? formatNairaFull(txn.net) : '—'}</td>
+                <td className="px-4 py-2.5 text-right"><StatusBadge status={txn.status} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       <ViewAllFooter label="Load more transactions" onClick={() => {}} />
     </Card>
   )
@@ -175,52 +213,53 @@ const AP_LOCATIONS = [
 export function NetworkTab() {
   return (
     <>
-      {/* Gateway responses */}
-      <Card>
-        <CardHeader><p className="card-title">Gateway response breakdown</p></CardHeader>
-        {GATEWAY.map((g) => (
-          <div key={g.label} className="row-item">
-            <div className="flex items-center gap-2">
-              <Dot color={g.color} />
-              <div>
-                <p className="text-sm text-text-primary">{g.label}</p>
-                <p className="text-xs text-text-tertiary mt-0.5">{g.description}</p>
+      {/* Gateway responses + Network usage — side by side on desktop */}
+      <div className="flex flex-col md:flex-row gap-3">
+        <Card className="md:flex-1">
+          <CardHeader><p className="card-title">Gateway response breakdown</p></CardHeader>
+          {GATEWAY.map((g) => (
+            <div key={g.label} className="row-item">
+              <div className="flex items-center gap-2">
+                <Dot color={g.color} />
+                <div>
+                  <p className="text-sm text-text-primary">{g.label}</p>
+                  <p className="text-xs text-text-tertiary mt-0.5">{g.description}</p>
+                </div>
+              </div>
+              <div className="text-right flex-shrink-0 ml-2">
+                <p className="text-sm font-medium text-text-primary">{g.count}</p>
+                <p className="text-xs text-text-tertiary mt-0.5">{g.pct}%</p>
               </div>
             </div>
-            <div className="text-right flex-shrink-0 ml-2">
-              <p className="text-sm font-medium text-text-primary">{g.count}</p>
-              <p className="text-xs text-text-tertiary mt-0.5">{g.pct}%</p>
-            </div>
-          </div>
-        ))}
-      </Card>
-
-      {/* Network usage */}
-      <Card>
-        <CardHeader><p className="card-title">Network usage & access points</p></CardHeader>
-        <div className="grid grid-cols-2">
-          {[
-            { label: 'Download', value: formatGB(1553.4) },
-            { label: 'Upload', value: formatGB(201.1) },
-            { label: 'Total bandwidth', value: formatGB(1754.6) },
-            { label: 'Total users', value: '48' },
-            { label: 'Online now', value: '13' },
-            { label: 'Access points', value: '19' },
-          ].map((stat, i, arr) => (
-            <div
-              key={stat.label}
-              className={[
-                'px-4 py-3',
-                i % 2 === 0 ? 'border-r border-border' : '',
-                i < arr.length - 2 ? 'border-b border-border' : '',
-              ].join(' ')}
-            >
-              <p className="text-xs text-text-tertiary mb-1">{stat.label}</p>
-              <p className="text-base font-medium text-text-primary">{stat.value}</p>
-            </div>
           ))}
-        </div>
-      </Card>
+        </Card>
+
+        <Card className="md:flex-1 h-fit">
+          <CardHeader><p className="card-title">Network usage & access points</p></CardHeader>
+          <div className="grid grid-cols-2">
+            {[
+              { label: 'Download', value: formatGB(1553.4) },
+              { label: 'Upload', value: formatGB(201.1) },
+              { label: 'Total bandwidth', value: formatGB(1754.6) },
+              { label: 'Total users', value: '48' },
+              { label: 'Online now', value: '13' },
+              { label: 'Access points', value: '19' },
+            ].map((stat, i, arr) => (
+              <div
+                key={stat.label}
+                className={[
+                  'px-4 py-3',
+                  i % 2 === 0 ? 'border-r border-border' : '',
+                  i < arr.length - 2 ? 'border-b border-border' : '',
+                ].join(' ')}
+              >
+                <p className="text-xs text-text-tertiary mb-1">{stat.label}</p>
+                <p className="text-base font-medium text-text-primary">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
 
       {/* AP breakdown */}
       <Card>
@@ -228,20 +267,50 @@ export function NetworkTab() {
           <p className="card-title">Breakdown by location</p>
           <button className="text-xs text-text-tertiary">View all →</button>
         </CardHeader>
-        {AP_LOCATIONS.map((ap) => (
-          <div key={ap.name} className="row-item">
-            <div>
-              <p className="text-sm text-text-primary">{ap.name}</p>
-              <p className="text-xs text-text-tertiary mt-0.5">{ap.activeClients} active client{ap.activeClients !== 1 ? 's' : ''}</p>
+
+        {/* Mobile list */}
+        <div className="md:hidden">
+          {AP_LOCATIONS.map((ap) => (
+            <div key={ap.name} className="row-item">
+              <div>
+                <p className="text-sm text-text-primary">{ap.name}</p>
+                <p className="text-xs text-text-tertiary mt-0.5">{ap.activeClients} active client{ap.activeClients !== 1 ? 's' : ''}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-text-primary">{formatGB(ap.totalGB)}</p>
+                <p className="text-xs text-text-tertiary mt-0.5">
+                  {ap.downloadGB.toFixed(1)} ↓ · {ap.uploadGB.toFixed(1)} ↑
+                </p>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-text-primary">{formatGB(ap.totalGB)}</p>
-              <p className="text-xs text-text-tertiary mt-0.5">
-                {ap.downloadGB.toFixed(1)} ↓ · {ap.uploadGB.toFixed(1)} ↑
-              </p>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary">AP location</th>
+                <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary text-right">Download</th>
+                <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary text-right">Upload</th>
+                <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary text-right">Total</th>
+                <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary text-right">Active clients</th>
+              </tr>
+            </thead>
+            <tbody>
+              {AP_LOCATIONS.map((ap) => (
+                <tr key={ap.name} className="border-b border-border last:border-b-0">
+                  <td className="px-4 py-2.5 font-medium text-text-primary">{ap.name}</td>
+                  <td className="px-4 py-2.5 text-right text-text-secondary">{formatGB(ap.downloadGB)}</td>
+                  <td className="px-4 py-2.5 text-right text-text-secondary">{formatGB(ap.uploadGB)}</td>
+                  <td className="px-4 py-2.5 text-right font-medium text-text-primary">{formatGB(ap.totalGB)}</td>
+                  <td className="px-4 py-2.5 text-right text-text-secondary">{ap.activeClients}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </>
   )

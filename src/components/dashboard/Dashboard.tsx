@@ -30,12 +30,12 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-dvh bg-surface-base flex flex-col max-w-md mx-auto">
+    <div className="min-h-dvh bg-surface-base flex flex-col max-w-md md:max-w-full mx-auto">
 
       {/* Topbar */}
       <div className="bg-surface-1 border-b border-border safe-top relative z-20">
-        <div className="px-4 pt-4 pb-3">
-          <div className="flex items-center justify-between mb-1">
+        <div className="px-4 md:px-6 pt-4 pb-3">
+          <div className="flex items-center justify-between mb-4">
             <p className="text-lg font-bold text-text-primary">Fronet Financier</p>
             {user && (
               <div className="flex items-center gap-2">
@@ -46,22 +46,24 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-          <LocationDropdown
-            open={dropdownOpen}
-            onToggle={() => setDropdownOpen((o) => !o)}
-            onClose={() => setDropdownOpen(false)}
-          />
-          <PeriodSelector />
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <LocationDropdown
+              open={dropdownOpen}
+              onToggle={() => setDropdownOpen((o) => !o)}
+              onClose={() => setDropdownOpen(false)}
+            />
+            <PeriodSelector />
+          </div>
         </div>
       </div>
 
       {/* KPI strip */}
-      <div className="bg-surface-1 border-b border-border px-4 py-3 flex flex-col gap-2">
+      <div className="bg-surface-1 border-b border-border px-4 md:px-6 py-3 flex flex-col gap-2">
         <KPIStrip onRequestPayout={() => setPayoutModalOpen(true)} />
       </div>
 
       {/* Tabs */}
-      <div className="bg-surface-1 border-b border-border flex px-4">
+      <div className="bg-surface-1 border-b border-border flex px-4 md:px-6">
         {TABS.map((tab) => (
           <Chip
             key={tab.id}
@@ -73,7 +75,7 @@ export default function Dashboard() {
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3 safe-bottom">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-3 flex flex-col gap-3 safe-bottom">
         <MarketplaceBanner onClick={() => navigate('/marketplace')} />
 
         {activeTab === 'revenue' && <RevenueTab />}

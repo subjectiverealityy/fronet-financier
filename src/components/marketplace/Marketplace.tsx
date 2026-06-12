@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
-import { Card } from '@/components/ui'
+import { Card, CardHeader } from '@/components/ui'
 import { formatNaira } from '@/lib/utils'
 import type { Offer, DeploymentStage } from '@/types'
 
 const MOCK_OFFERS: Offer[] = [
-  { id: '1', name: 'Greenfield Hostel', institution: 'University of Ilorin', state: 'Kwara State', rooms: 120, costOfInstall: 800000, projectedReturns: 40, fundingRaised: 1600000, fundingTarget: 2400000, stage: 'invested', fullyFunded: false, gps: 'https://x.com' },
-  { id: '2', name: 'Lekki Student Lodge', institution: 'University of Lagos', state: 'Lagos State', rooms: 80, costOfInstall: 600000, projectedReturns: 38, fundingRaised: 1400000, fundingTarget: 1800000, stage: 'procured', fullyFunded: false, gps: 'https://x.com' },
-  { id: '3', name: 'Capitol View Hostel', institution: 'University of Abuja', state: 'FCT', rooms: 200, costOfInstall: 1200000, projectedReturns: 42, fundingRaised: 3600000, fundingTarget: 3600000, stage: 'paid', fullyFunded: true, gps: 'https://x.com' },
+  { id: '1', name: 'Greenfield Hostel', institution: 'University of Ilorin', state: 'Kwara State', rooms: 120, costOfInstall: 800000, projectedReturns: 40, fundingRaised: 1600000, fundingTarget: 2400000, stage: 'invested', fullyFunded: false, gps: '' },
+  { id: '2', name: 'Lekki Student Lodge', institution: 'University of Lagos', state: 'Lagos State', rooms: 80, costOfInstall: 600000, projectedReturns: 38, fundingRaised: 1400000, fundingTarget: 1800000, stage: 'procured', fullyFunded: false, gps: '' },
+  { id: '3', name: 'Capitol View Hostel', institution: 'University of Abuja', state: 'FCT', rooms: 200, costOfInstall: 1200000, projectedReturns: 42, fundingRaised: 3600000, fundingTarget: 3600000, stage: 'paid', fullyFunded: true, gps: '' },
 ]
 
 const STAGES: DeploymentStage[] = ['paid', 'procured', 'invested', 'live']
@@ -21,9 +21,9 @@ export default function Marketplace() {
   const kycDone = user?.kycStatus === 'verified'
 
   return (
-    <div className="min-h-dvh bg-surface-base flex flex-col max-w-md mx-auto">
+    <div className="min-h-dvh bg-surface-base flex flex-col max-w-md md:max-w-none mx-auto w-full">
       {/* Header */}
-      <div className="bg-surface-1 border-b border-border px-4 py-4 safe-top flex items-center gap-3">
+      <div className="bg-surface-1 border-b border-border px-4 md:px-6 py-4 safe-top flex items-center gap-3">
         <button
           onClick={() => navigate('/')}
           className="w-8 h-8 flex items-center justify-center text-text-tertiary"
@@ -35,14 +35,16 @@ export default function Marketplace() {
         <p className="text-base font-medium text-text-primary">Marketplace</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3 safe-bottom">
-        {/* KYC banner */}
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-3 flex flex-col gap-3 safe-bottom">
+        {/* KYC banner — full width */}
         {!kycDone && <KYCBanner onComplete={() => navigate('/kyc')} />}
 
-        {/* Offer cards */}
-        {MOCK_OFFERS.map((offer) => (
-          <OfferCard key={offer.id} offer={offer} kycDone={kycDone} />
-        ))}
+        {/* Offer cards — 1 col mobile, 3 cols desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {MOCK_OFFERS.map((offer) => (
+            <OfferCard key={offer.id} offer={offer} kycDone={kycDone} />
+          ))}
+        </div>
       </div>
     </div>
   )
