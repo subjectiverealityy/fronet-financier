@@ -92,12 +92,14 @@ export type TxnChannel = 'BT' | 'bank' | 'card' | 'unknown'
 export interface Transaction {
   id: string
   date: string
-  customerName: string
+  customerName?: string
+  transactionId?: string
+  userId?: string
   amount: number
   fees: number
   net: number | null
   status: TxnStatus
-  channel: TxnChannel
+  channel?: TxnChannel
   apLocation: string
   hostel?: string // present in aggregated view
 }
@@ -124,7 +126,7 @@ export interface Offer {
 // ─── Utility ─────────────────────────────────────────────────────────────────
 
 export type DashboardView = 'all' | string // 'all' or a location id
-export type DashboardTab = 'revenue' | 'transactions' | 'network'
+export type DashboardTab = 'revenue' | 'transactions' | 'network' | 'deployments'
 
 // ─── Payouts ─────────────────────────────────────────────────────────────────
 

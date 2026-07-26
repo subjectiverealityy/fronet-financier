@@ -1,40 +1,91 @@
 import { Card, CardHeader, Dot, StatusBadge, ViewAllFooter } from '@/components/ui'
 import { formatNaira, formatNairaFull, formatGB } from '@/lib/utils'
 import { useDashboardStore } from '@/store/dashboardStore'
-// import { MOCK_KPIS } from '../PeriodSelector'
 
 // ─── Revenue Tab ─────────────────────────────────────────────────────────────
 
+const INVESTMENT_METRICS = [
+  { label: 'Initial investment', value: formatNaira(2500000) },
+  { label: 'Net income', value: formatNaira(326400) },
+  { label: 'Earnings to date', value: formatNaira(489200) },
+  { label: 'Net % yield', value: '13.1%' },
+  { label: 'Projected annualized yield', value: '15.8%' },
+  { label: '3-year projected return', value: formatNaira(1180000) },
+]
+
+const EARNINGS_HISTORY = [
+  { label: 'Last 30 days', value: formatNaira(128000) },
+  { label: 'Last 90 days', value: formatNaira(326400) },
+  { label: 'Last 180 days', value: formatNaira(489200) },
+  { label: 'Last 365 days', value: formatNaira(612000) },
+]
+
+const DEPLOYMENTS = [
+  {
+    title: 'Deployment #024 · Example Hostel, UNN, Enugu',
+    story: 'A new shared infrastructure deployment is now serving 180 residents and generating recurring revenue through a solar-backed network upgrade.',
+    location: 'Example Hostel, UNN, Enugu',
+    deploymentDate: 'Apr 2026',
+    investmentDeployed: formatNaira(2400000),
+    users: '180 users',
+    revenue: formatNaira(162000),
+    yield: '14.2%',
+    assets: 'Solar panels · Wi-Fi access points · Backup batteries',
+    media: 'Photo gallery · Installation video · Before/after view',
+  },
+  {
+    title: 'Deployment #027 · Example Hostel, UNN, Enugu',
+    story: 'The latest deployment expanded access with stronger uptime and more resilient coverage for surrounding homes and small businesses.',
+    location: 'Example Hostel, UNN, Enugu',
+    deploymentDate: 'Jun 2026',
+    investmentDeployed: formatNaira(1800000),
+    users: '94 users',
+    revenue: formatNaira(98000),
+    yield: '12.6%',
+    assets: 'Outdoor routers · Power backup units · Network cabinet',
+    media: 'Photo timeline · Installation clips · Infrastructure map',
+  },
+]
+
+const INVESTMENT_PERFORMANCE_ROWS = [
+  { name: 'Bims Hostel', sub: 'University of Ilorin', stake: 15, amt: 16929, color: '#03c9a6' },
+  { name: 'ZAHA Hostel', sub: 'University of Lagos', stake: 100, amt: 89400, color: '#3d8eff' },
+  { name: 'Kings Court', sub: 'Covenant University', stake: 32, amt: 4902, color: '#f5a623' },
+]
+
 export function RevenueTab() {
   const { selectedView } = useDashboardStore()
+  const projectedTotal = 540000
+  const actualTotal = 510000
+  const variance = actualTotal - projectedTotal
+  const variancePct = Math.round((variance / projectedTotal) * 100)
+  const cumulativeAmount = INVESTMENT_PERFORMANCE_ROWS.reduce((sum, row) => sum + row.amt, 0)
 
   return (
     <>
-      {/* Revenue share */}
       <Card className="border-brand/30 bg-brand/5">
         <CardHeader>
           <div>
-            <p className="card-title">Your revenue share</p>
+            <p className="card-title">Investment performance</p>
             <p className="card-subtitle">
               {selectedView === 'all'
-                ? 'Aggregated across all deployments'
+                ? 'Cumulative earnings across all deployments'
                 : `15% stake · 6% of gross · Bims Hostel`}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-sm font-medium text-brand">{formatNaira(16929)}</p>
-            {selectedView !== 'all' && <p className="text-xs text-text-tertiary mt-0.5">6%</p>}
+            <p className="text-sm font-medium text-brand">
+              {selectedView === 'all' ? formatNaira(cumulativeAmount) : formatNaira(16929)}
+            </p>
+            <p className="text-xs text-text-tertiary mt-0.5">
+              {selectedView === 'all' ? 'Your cumulative earnings' : 'Your earnings'}
+            </p>
           </div>
         </CardHeader>
 
-        {/* Earnings by location — only when 'all' is selected */}
         {selectedView === 'all' && (
           <div>
-            {[
-              { name: 'Bims Hostel', sub: 'University of Ilorin', stake: 15, amt: 16929, color: '#03c9a6' },
-              { name: 'ZAHA Hostel', sub: 'University of Lagos', stake: 100, amt: 89400, color: '#3d8eff' },
-              { name: 'Kings Court', sub: 'Covenant University', stake: 32, amt: 4902, color: '#f5a623' },
-            ].map((loc) => (
+            {INVESTMENT_PERFORMANCE_ROWS.map((loc) => (
               <div key={loc.name} className="row-item">
                 <div className="flex items-center gap-2">
                   <Dot color={loc.color} />
@@ -45,7 +96,7 @@ export function RevenueTab() {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-medium text-text-primary">{formatNaira(loc.amt)}</p>
-                  <p className="text-xs text-text-tertiary mt-0.5">{loc.stake}%</p>
+                  <p className="text-xs text-text-tertiary mt-0.5">Stake {loc.stake}%</p>
                 </div>
               </div>
             ))}
@@ -53,7 +104,61 @@ export function RevenueTab() {
         )}
       </Card>
 
-      {/* Subscription plans + Payment channels — side by side on desktop */}
+      <Card>
+        <CardHeader>
+          <p className="card-title">Investment summary</p>
+        </CardHeader>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 p-4">
+          {INVESTMENT_METRICS.map((metric) => (
+            <div key={metric.label} className="rounded-card border border-border bg-surface-2/60 p-3">
+              <p className="text-[10px] uppercase tracking-wider text-text-tertiary">{metric.label}</p>
+              <p className="mt-1 text-base font-semibold text-text-primary">{metric.value}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <p className="card-title">Actual vs projected returns</p>
+          <p className="text-xs text-text-tertiary">Variance {formatNaira(Math.abs(variance))} / {variancePct}%</p>
+        </CardHeader>
+        <div className="p-4 grid gap-3 md:grid-cols-3">
+          <div className="rounded-card border border-border bg-surface-2/60 p-3">
+            <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Projected return</p>
+            <p className="mt-1 text-lg font-semibold text-text-primary">{formatNaira(projectedTotal)}</p>
+          </div>
+          <div className="rounded-card border border-border bg-surface-2/60 p-3">
+            <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Actual return</p>
+            <p className="mt-1 text-lg font-semibold text-text-primary">{formatNaira(actualTotal)}</p>
+          </div>
+          <div className="rounded-card border border-border bg-surface-2/60 p-3">
+            <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Variance</p>
+            <p className={`mt-1 text-lg font-semibold ${variance >= 0 ? 'text-brand' : 'text-warning'}`}>
+              {variance >= 0 ? '+' : ''}{formatNaira(Math.abs(variance))}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <p className="card-title">Earnings over time</p>
+          <p className="text-xs text-text-tertiary">Cumulative earnings across selected timelines</p>
+        </CardHeader>
+        <div className="p-4 space-y-2">
+          {EARNINGS_HISTORY.map((item) => (
+            <div key={item.label} className="flex items-center justify-between rounded-card border border-border bg-surface-2/60 px-3 py-2.5">
+              <div>
+                <p className="text-sm font-medium text-text-primary">{item.label}</p>
+                {/* <p className="text-xs text-text-tertiary">Cumulative earnings</p> */}
+              </div>
+              <p className="text-sm font-semibold text-text-primary">{item.value}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
       <div className="flex flex-col md:flex-row gap-3">
         <Card className="md:flex-1">
           <CardHeader><p className="card-title">Subscription plan breakdown</p></CardHeader>
@@ -68,9 +173,7 @@ export function RevenueTab() {
             <div key={p.plan} className="row-item">
               <div>
                 <p className="text-sm font-medium text-text-primary">{p.plan}</p>
-                <p className="text-xs text-text-tertiary mt-0.5">
-                  {p.sessions} sessions · average {formatNaira(p.avg)}
-                </p>
+                <p className="text-xs text-text-tertiary mt-0.5">{p.sessions} sessions · average {formatNaira(p.avg)}</p>
               </div>
               <div className="text-right">
                 <p className="text-sm font-medium text-text-primary">{formatNaira(p.revenue)}</p>
@@ -80,51 +183,93 @@ export function RevenueTab() {
           ))}
         </Card>
 
-        <Card className="md:flex-1 h-fit">
-          <CardHeader><p className="card-title">Payment channel summary</p></CardHeader>
+        {/* <Card className="md:flex-1 h-fit">
+          <CardHeader><p className="card-title">Capital movement summary</p></CardHeader>
           {[
-            { channel: 'Bank Transfer', txns: 67, revenue: 180213, pct: 63.9, color: '#03c9a6' },
-            { channel: 'OPay (Bank)', txns: 34, revenue: 101936, pct: 36.1, color: '#3d8eff' },
-            { channel: 'PalmPay', txns: 3, revenue: 3000, pct: 0, color: '#f5a623' },
-            { channel: 'Unknown', txns: 1, revenue: 500, pct: 0, color: '#555' },
-          ].map((c) => (
-            <div key={c.channel} className="row-item">
-              <div className="flex items-center gap-2">
-                <Dot color={c.color} />
-                <div>
-                  <p className="text-sm text-text-primary">{c.channel}</p>
-                  <p className="text-xs text-text-tertiary mt-0.5">{c.txns} transactions</p>
-                </div>
+            { name: 'Initial deployment', value: formatNaira(2500000), detail: 'Capital deployed to infrastructure' },
+            { name: 'Investor uplift', value: formatNaira(326400), detail: 'Current net income generated' },
+            { name: 'Revenue retention', value: '87%', detail: 'Available for reinvestment' },
+          ].map((item) => (
+            <div key={item.name} className="row-item">
+              <div>
+                <p className="text-sm text-text-primary">{item.name}</p>
+                <p className="text-xs text-text-tertiary mt-0.5">{item.detail}</p>
               </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-text-primary">{formatNaira(c.revenue)}</p>
-                <p className="text-xs text-text-tertiary mt-0.5">{c.pct}%</p>
-              </div>
+              <p className="text-sm font-medium text-text-primary">{item.value}</p>
             </div>
           ))}
-        </Card>
+        </Card> */}
       </div>
     </>
+  )
+}
+
+export function DeploymentsTab() {
+  return (
+    <Card>
+      <CardHeader>
+        <p className="card-title">Deployments</p>
+        <p className="text-xs text-text-tertiary">Visible proof of funded infrastructure</p>
+      </CardHeader>
+      <div className="p-4 space-y-3">
+        {DEPLOYMENTS.map((deployment) => (
+          <div key={deployment.title} className="rounded-card border border-border bg-surface-2/60 p-3">
+            <div>
+              <p className="text-sm font-semibold text-text-primary">{deployment.title}</p>
+              <p className="text-xs text-text-tertiary mt-1">{deployment.story}</p>
+            </div>
+
+            <div className="mt-3 rounded-card border border-dashed border-border bg-surface-1/70 p-3 text-xs text-text-tertiary">
+              <p className="font-medium text-text-primary mb-1">Visual proof (placeholder)</p>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+              <div className="rounded-card border border-border bg-surface-1/70 p-2">
+                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Revenue generated</p>
+                <p className="mt-1 font-medium text-text-primary">{deployment.revenue}</p>
+              </div>
+              <div className="rounded-card border border-border bg-surface-1/70 p-2">
+                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Investment deployed</p>
+                <p className="mt-1 font-medium text-text-primary">{deployment.investmentDeployed}</p>
+              </div>
+              <div className="rounded-card border border-border bg-surface-1/70 p-2">
+                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Deployment date</p>
+                <p className="mt-1 font-medium text-text-primary">{deployment.deploymentDate}</p>
+              </div>
+              <div className="rounded-card border border-border bg-surface-1/70 p-2">
+                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Users served</p>
+                <p className="mt-1 font-medium text-text-primary">{deployment.users}</p>
+              </div>
+              <div className="rounded-card border border-border bg-surface-1/70 p-2">
+                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Monthly revenue</p>
+                <p className="mt-1 font-medium text-text-primary">{deployment.revenue}</p>
+              </div>
+              <div className="rounded-card border border-border bg-surface-1/70 p-2">
+                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Current yield</p>
+                <p className="mt-1 font-medium text-text-primary">{deployment.yield}</p>
+              </div>
+              <div className="rounded-card border border-border bg-surface-1/70 p-2 col-span-2">
+                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Infrastructure funded</p>
+                <p className="mt-1 font-medium text-text-primary">{deployment.assets}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
   )
 }
 
 // ─── Transactions Tab ─────────────────────────────────────────────────────────
 
 const MOCK_TXNS = [
-  { id: '1', date: 'Apr 10', customerName: 'Olajumoke Athar', amount: 2499, fees: 37.49, net: 2461.51, status: 'Success' as const, channel: 'BT' as const, apLocation: 'Bims 3', hostel: 'Bims Hostel' },
-  { id: '2', date: 'Apr 11', customerName: 'Mubarak Alimi', amount: 14699, fees: 320.49, net: 14378.51, status: 'Success' as const, channel: 'bank' as const, apLocation: 'Bims 2', hostel: 'Bims Hostel' },
-  { id: '3', date: 'Apr 1', customerName: 'Florence Ojo', amount: 2499, fees: 0, net: null, status: 'Abandoned' as const, channel: 'card' as const, apLocation: '—', hostel: 'ZAHA Hostel' },
-  { id: '4', date: 'Apr 23', customerName: 'Ireoluwa Olayioye', amount: 2499, fees: 0, net: null, status: 'Failed' as const, channel: 'bank' as const, apLocation: '—', hostel: 'Kings Court' },
-  { id: '5', date: 'Apr 27', customerName: 'Blessing Adekunle', amount: 9559, fees: 243.39, net: 9315.61, status: 'Success' as const, channel: 'BT' as const, apLocation: '2nd Floor 3', hostel: 'Bims Hostel' },
-  { id: '6', date: 'Apr 22', customerName: 'Daniel Adeyeoluwa', amount: 9559, fees: 243.39, net: 9315.61, status: 'Success' as const, channel: 'BT' as const, apLocation: '1st Floor 4', hostel: 'ZAHA Hostel' },
+  { id: '1', date: 'Apr 10', transactionId: 'TRX-1041', userId: 'UI-2041', amount: 2499, fees: 37.49, net: 2461.51, status: 'Success' as const, apLocation: 'Bims 3', hostel: 'Bims Hostel' },
+  { id: '2', date: 'Apr 11', transactionId: 'TRX-1042', userId: 'UI-2042', amount: 14699, fees: 320.49, net: 14378.51, status: 'Success' as const, apLocation: 'Bims 2', hostel: 'Bims Hostel' },
+  { id: '3', date: 'Apr 1', transactionId: 'TRX-1043', userId: 'UI-2043', amount: 2499, fees: 0, net: null, status: 'Abandoned' as const, apLocation: '—', hostel: 'ZAHA Hostel' },
+  { id: '4', date: 'Apr 23', transactionId: 'TRX-1044', userId: 'UI-2044', amount: 2499, fees: 0, net: null, status: 'Failed' as const, apLocation: '—', hostel: 'Kings Court' },
+  { id: '5', date: 'Apr 27', transactionId: 'TRX-1045', userId: 'UI-2045', amount: 9559, fees: 243.39, net: 9315.61, status: 'Success' as const, apLocation: '2nd Floor 3', hostel: 'Bims Hostel' },
+  { id: '6', date: 'Apr 22', transactionId: 'TRX-1046', userId: 'UI-2046', amount: 9559, fees: 243.39, net: 9315.61, status: 'Success' as const, apLocation: '1st Floor 4', hostel: 'ZAHA Hostel' },
 ]
-
-const CHANNEL_LABELS: Record<string, string> = {
-  BT: 'Bank Transfer',
-  bank: 'Bank Transfer',
-  card: 'Card',
-  unknown: 'Unknown',
-}
 
 export function TransactionsTab() {
   return (
@@ -134,15 +279,12 @@ export function TransactionsTab() {
         <p className="text-xs text-text-tertiary">118 total</p>
       </CardHeader>
 
-      {/* Mobile list */}
       <div className="md:hidden">
         {MOCK_TXNS.map((txn) => (
           <div key={txn.id} className="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-b-0">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-text-primary truncate">{txn.customerName}</p>
-              <p className="text-xs text-text-tertiary mt-0.5">
-                {txn.date} · {CHANNEL_LABELS[txn.channel] ?? txn.channel} · {txn.hostel ?? txn.apLocation}
-              </p>
+              <p className="text-sm font-medium text-text-primary truncate">{txn.transactionId}</p>
+              <p className="text-xs text-text-tertiary mt-0.5">{txn.date} · {txn.userId} · {txn.hostel ?? txn.apLocation}</p>
             </div>
             <div className="flex flex-col items-end gap-1 flex-shrink-0">
               <p className="text-sm font-medium text-text-primary">{formatNaira(txn.amount)}</p>
@@ -152,16 +294,14 @@ export function TransactionsTab() {
         ))}
       </div>
 
-      {/* Desktop table */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left">
               <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary">Date</th>
-              <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary">Customer</th>
+              <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary">Transaction ID</th>
               <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary">Hostel</th>
               <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary">AP location</th>
-              <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary">Channel</th>
               <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary text-right">Amount</th>
               <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary text-right">Fees</th>
               <th className="px-4 py-2.5 text-xs font-medium text-text-tertiary text-right">Net</th>
@@ -172,10 +312,9 @@ export function TransactionsTab() {
             {MOCK_TXNS.map((txn) => (
               <tr key={txn.id} className="border-b border-border last:border-b-0">
                 <td className="px-4 py-2.5 text-text-secondary">{txn.date}</td>
-                <td className="px-4 py-2.5 font-medium text-text-primary">{txn.customerName}</td>
+                <td className="px-4 py-2.5 font-medium text-text-primary">{txn.transactionId}</td>
                 <td className="px-4 py-2.5 text-text-secondary">{txn.hostel ?? '—'}</td>
                 <td className="px-4 py-2.5 text-text-secondary">{txn.apLocation}</td>
-                <td className="px-4 py-2.5 text-text-secondary">{CHANNEL_LABELS[txn.channel] ?? txn.channel}</td>
                 <td className="px-4 py-2.5 text-right font-medium text-text-primary">{formatNaira(txn.amount)}</td>
                 <td className="px-4 py-2.5 text-right text-text-secondary">{txn.fees ? formatNairaFull(txn.fees) : '—'}</td>
                 <td className="px-4 py-2.5 text-right text-text-secondary">{txn.net ? formatNairaFull(txn.net) : '—'}</td>
@@ -213,7 +352,6 @@ const AP_LOCATIONS = [
 export function NetworkTab() {
   return (
     <>
-      {/* Gateway responses + Network usage — side by side on desktop */}
       <div className="flex flex-col md:flex-row gap-3">
         <Card className="md:flex-1">
           <CardHeader><p className="card-title">Gateway response breakdown</p></CardHeader>
@@ -261,14 +399,12 @@ export function NetworkTab() {
         </Card>
       </div>
 
-      {/* AP breakdown */}
       <Card>
         <CardHeader>
           <p className="card-title">Breakdown by location</p>
           <button className="text-xs text-text-tertiary">View all →</button>
         </CardHeader>
 
-        {/* Mobile list */}
         <div className="md:hidden">
           {AP_LOCATIONS.map((ap) => (
             <div key={ap.name} className="row-item">
@@ -278,15 +414,12 @@ export function NetworkTab() {
               </div>
               <div className="text-right">
                 <p className="text-sm font-medium text-text-primary">{formatGB(ap.totalGB)}</p>
-                <p className="text-xs text-text-tertiary mt-0.5">
-                  {ap.downloadGB.toFixed(1)} ↓ · {ap.uploadGB.toFixed(1)} ↑
-                </p>
+                <p className="text-xs text-text-tertiary mt-0.5">{ap.downloadGB.toFixed(1)} ↓ · {ap.uploadGB.toFixed(1)} ↑</p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Desktop table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

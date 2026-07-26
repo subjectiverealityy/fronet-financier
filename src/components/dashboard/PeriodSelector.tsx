@@ -1,36 +1,70 @@
 import { useDashboardStore } from '@/store/dashboardStore'
 import { KpiCard } from '@/components/ui'
-import { getMonthName, formatNaira, MONTHS, YEARS } from '@/lib/utils'
+import { getMonthName, formatNaira } from '@/lib/utils'
+
+const RANGE_OPTIONS = [
+  { id: '7d', label: 'Last 7 days' },
+  { id: '30d', label: 'Last 30 days' },
+  { id: '3m', label: 'Last 3 months' },
+  { id: '6m', label: 'Last 6 months' },
+  { id: '1y', label: 'Last 1 year' },
+  { id: 'custom', label: 'Custom range' },
+] as const
 
 // ─── PeriodSelector ──────────────────────────────────────────────────────────
 
 export function PeriodSelector() {
-  const { selectedMonth, selectedYear, setSelectedMonth, setSelectedYear } = useDashboardStore()
+  const {
+    selectedRange,
+    customStartDate,
+    customEndDate,
+    setSelectedRange,
+    setCustomStartDate,
+    setCustomEndDate,
+  } = useDashboardStore()
 
   return (
-    <div className="flex gap-2 mt-2.5 md:mt-0">
-      <select
-        className="mamama flex items-center gap-1 text-xs text-text-secondary bg-surface-2
-                   border border-border-strong rounded-pill px-3 py-1.5 appearance-none
-                   focus:outline-none focus:border-brand/50"
-        value={selectedMonth}
-        onChange={(e) => setSelectedMonth(Number(e.target.value))}
-      >
-        {MONTHS.map((m) => (
-          <option key={m.value} value={m.value}>{m.label}</option>
+    <div className="flex flex-col gap-2 mt-2.5 md:mt-0 md:items-end">
+      <div className="flex flex-wrap gap-2">
+        {RANGE_OPTIONS.map((range) => (
+          <button
+            key={range.id}
+            type="button"
+            onClick={() => setSelectedRange(range.id)}
+            className={`rounded-pill border px-2.5 py-1 text-[11px] transition-colors ${
+              selectedRange === range.id
+                ? 'border-brand/40 bg-brand/10 text-brand'
+                : 'border-border bg-surface-2 text-text-secondary'
+            }`}
+          >
+            {range.label}
+          </button>
         ))}
-      </select>
-      <select
-        className="flex items-center gap-1 text-xs text-text-secondary bg-surface-2
-                   border border-border-strong rounded-pill px-3 py-1.5 appearance-none
-                   focus:outline-none focus:border-brand/50"
-        value={selectedYear}
-        onChange={(e) => setSelectedYear(Number(e.target.value))}
-      >
-        {YEARS.map((y) => (
-          <option key={y} value={y}>{y}</option>
-        ))}
-      </select>
+      </div>
+
+      {selectedRange === 'custom' && (
+        <div className="flex flex-wrap gap-2">
+          <label className="flex items-center gap-2 rounded-pill border border-border bg-surface-2 px-2.5 py-1 text-[11px] text-text-secondary">
+            <span>From</span>
+            <input
+              type="date"
+              value={customStartDate}
+              onChange={(e) => setCustomStartDate(e.target.value)}
+              className="bg-transparent text-text-primary outline-none"
+            />
+          </label>
+          <label className="flex items-center gap-2 rounded-pill border border-border bg-surface-2 px-2.5 py-1 text-[11px] text-text-secondary">
+            <span>To</span>
+            <input
+              type="date"
+              value={customEndDate}
+              onChange={(e) => setCustomEndDate(e.target.value)}
+              className="bg-transparent text-text-primary outline-none"
+            />
+          </label>
+        </div>
+      )}
+
     </div>
   )
 }
@@ -56,17 +90,17 @@ export const MOCK_KPIS = {
 }
 
 export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
-  const { selectedView, selectedMonth, selectedYear } = useDashboardStore()
+  const { selectedView, selectedMonth, selectedYear, selectedRange } = useDashboardStore()
   const kpis = MOCK_KPIS
+  const rangeLabel = selectedRange === 'custom' ? 'custom range' : RANGE_OPTIONS.find((item) => item.id === selectedRange)?.label ?? 'selected range'
 
   return (
     <div className="flex flex-col gap-2">
-
-      <div className='flex gap-2'>
+      <div className="flex gap-2">
         {/* Earnings highlight */}
         <div className="bg-brand/10 border border-brand/20 rounded-card p-4 md:flex-[1.4] md:flex md:flex-col md:justify-center">
           <p className="text-[10px] text-brand/60 uppercase tracking-wider mb-1">
-            {selectedView === 'all' ? 'Total earnings this month' : 'Your earnings this month'}
+            {selectedView === 'all' ? 'Total earnings' : 'Your earnings'}
           </p>
           <p className="text-2xl font-semibold text-brand">{formatNaira(kpis.financierEarnings)}</p>
           <p className="text-[11px] text-brand/50 mt-0.5">
@@ -75,11 +109,11 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
               : `${kpis.myStakePct}% stake · ${kpis.financierSharePct}% of gross revenue`}
             {selectedView !== 'all' ? ` · ${getMonthName(selectedMonth)} ${selectedYear}` : ''}
           </p>
+          <p className="text-[10px] uppercase tracking-wider text-brand/50 mt-1">{rangeLabel}</p>
         </div>
 
         {/* Payout balance + CTA */}
-        <div className="bg-surface-2 border border-border rounded-card p-4 flex items-center justify-between gap-3
-                        md:flex-1 md:flex-col md:items-start md:justify-center md:gap-2">
+        <div className="bg-surface-2 border border-border rounded-card p-4 flex items-center justify-between gap-3 md:flex-1 md:flex-col md:items-start md:justify-center md:gap-2">
           <div>
             <p className="text-xs text-text-tertiary mb-1">Available for payout</p>
             <p className="text-lg font-medium text-text-primary">{formatNaira(kpis.payoutBalance)}</p>
@@ -87,8 +121,7 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
           <button
             onClick={onRequestPayout}
             disabled={kpis.payoutBalance <= 0 || kpis.payoutStatus === 'pending'}
-            className="btn-brand text-xs whitespace-nowrap disabled:opacity-40 disabled:cursor-default
-                      md:w-full md:text-center"
+            className="btn-brand text-xs whitespace-nowrap disabled:opacity-40 disabled:cursor-default md:w-full md:text-center"
           >
             {kpis.payoutStatus === 'pending' ? 'Payout requested →' : 'Request payout →'}
           </button>
@@ -117,13 +150,10 @@ export function MarketplaceBanner({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="w-full bg-brand/10 border border-brand/20 rounded-card px-4 py-3.5
-                 flex items-center justify-between text-left active:scale-[0.98] transition-transform"
+      className="w-full bg-brand/10 border border-brand/20 rounded-card px-4 py-3.5 flex items-center justify-between text-left active:scale-[0.98] transition-transform"
     >
       <div>
-        <p className="text-[10px] text-brand/60 uppercase tracking-wider mb-0.5">
-          FroNet Marketplace
-        </p>
+        <p className="text-[10px] text-brand/60 uppercase tracking-wider mb-0.5">FroNet Marketplace</p>
         <p className="text-sm font-medium text-text-primary">Browse Active Offers</p>
         <p className="text-xs text-text-tertiary mt-0.5">4 active offers available</p>
       </div>
