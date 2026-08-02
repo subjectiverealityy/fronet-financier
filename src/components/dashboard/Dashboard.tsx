@@ -35,6 +35,16 @@ export default function Dashboard() {
         <div className="px-4 md:px-6 pt-4 pb-3">
           <div className="flex items-center justify-between mb-4">
             <p className="text-lg font-bold text-text-primary">Fronet Financier</p>
+            <button
+              type="button"
+              onClick={() => navigate('/profile')}
+              className="w-7 h-7 rounded-full border border-border bg-surface-2 flex items-center justify-center text-text-secondary"
+              aria-label="Open profile"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z" />
+              </svg>
+            </button>
           </div>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
             <LocationDropdown

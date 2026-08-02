@@ -37,7 +37,7 @@ export default function Marketplace() {
 
       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-3 flex flex-col gap-3 safe-bottom">
         {/* KYC banner — full width */}
-        {!kycDone && <KYCBanner onComplete={() => navigate('/kyc')} />}
+        {!kycDone && <KYCBanner onComplete={() => navigate('/profile')} />}
 
         {/* Offer cards — 1 col mobile, 3 cols desktop */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">

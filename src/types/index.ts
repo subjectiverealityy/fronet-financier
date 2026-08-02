@@ -1,11 +1,35 @@
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
+export interface PersonalKycProfile {
+  fullName: string
+  nin: string
+  bvn: string
+  phone: string
+  address: string
+  dob: string
+}
+
+export interface BusinessKycProfile {
+  businessName: string
+  rcNumber: string
+  cacNumber: string
+  tin: string
+  contactPerson: string
+  address: string
+}
+
+export interface KycProfile {
+  personal: PersonalKycProfile
+  business: BusinessKycProfile
+}
+
 export interface User {
   id: string
   name: string
   email: string
   kycStatus: 'none' | 'pending' | 'verified'
   role: 'partner' | 'prospect' // partner = has active deployments
+  kycProfile?: KycProfile
 }
 
 // ─── Locations ───────────────────────────────────────────────────────────────

@@ -4,6 +4,7 @@ import DashboardPage from '@/pages/DashboardPage'
 import MarketplacePage from '@/pages/MarketplacePage'
 import LoginPage from '@/pages/LoginPage'
 import KYCPage from '@/pages/KYCPage'
+import ProfilePage from '@/pages/ProfilePage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore()
@@ -36,6 +37,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <KYCPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
           </ProtectedRoute>
         }
       />
