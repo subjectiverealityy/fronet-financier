@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Card, CardHeader, Dot, StatusBadge, ViewAllFooter } from '@/components/ui'
 import { formatNaira, formatNairaFull, formatGB } from '@/lib/utils'
 import { useDashboardStore } from '@/store/dashboardStore'
@@ -25,25 +26,32 @@ const DEPLOYMENTS = [
     title: 'Deployment #024 · Example Hostel, UNN, Enugu',
     story: 'A new shared infrastructure deployment is now serving 180 residents and generating recurring revenue through a solar-backed network upgrade.',
     location: 'Example Hostel, UNN, Enugu',
+    gps: 'https://www.google.com/maps/search/?api=1&query=Example+Hostel+UNN+Enugu',
     deploymentDate: 'Apr 2026',
     investmentDeployed: formatNaira(2400000),
     users: '180 users',
     revenue: formatNaira(162000),
     yield: '14.2%',
     assets: 'Solar panels · Wi-Fi access points · Backup batteries',
-    media: 'Photo gallery · Installation video · Before/after view',
+    media: [
+      'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80',
+      'https://www.w3schools.com/html/mov_bbb.mp4',
+    ],
   },
   {
     title: 'Deployment #027 · Example Hostel, UNN, Enugu',
     story: 'The latest deployment expanded access with stronger uptime and more resilient coverage for surrounding homes and small businesses.',
     location: 'Example Hostel, UNN, Enugu',
+    gps: 'https://www.google.com/maps/search/?api=1&query=Example+Hostel+UNN+Enugu',
     deploymentDate: 'Jun 2026',
     investmentDeployed: formatNaira(1800000),
     users: '94 users',
     revenue: formatNaira(98000),
     yield: '12.6%',
     assets: 'Outdoor routers · Power backup units · Network cabinet',
-    media: 'Photo timeline · Installation clips · Infrastructure map',
+    media: [
+      'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
+    ],
   },
 ]
 
@@ -205,6 +213,35 @@ export function RevenueTab() {
 }
 
 export function DeploymentsTab() {
+  const [activeMedia, setActiveMedia] = useState<{ deploymentTitle: string; items: string[]; index: number } | null>(null)
+
+  useEffect(() => {
+    if (!activeMedia) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setActiveMedia(null)
+      if (event.key === 'ArrowRight') {
+        setActiveMedia((current) => current ? { ...current, index: (current.index + 1) % current.items.length } : current)
+      }
+      if (event.key === 'ArrowLeft') {
+        setActiveMedia((current) => current ? { ...current, index: (current.index - 1 + current.items.length) % current.items.length } : current)
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [activeMedia])
+
+  const renderMedia = (src: string) => {
+    const isVideo = src.match(/\.(mp4|webm|ogg)$/i) || src.includes('video')
+
+    if (isVideo) {
+      return <video src={src} controls className="max-h-[70vh] w-full rounded-card object-contain bg-black" />
+    }
+
+    return <img src={src} alt="Deployment media" className="max-h-[70vh] w-full rounded-card object-contain bg-surface-2" />
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -219,8 +256,29 @@ export function DeploymentsTab() {
               <p className="text-xs text-text-tertiary mt-1">{deployment.story}</p>
             </div>
 
-            <div className="mt-3 rounded-card border border-dashed border-border bg-surface-1/70 p-3 text-xs text-text-tertiary">
-              <p className="font-medium text-text-primary mb-1">Visual proof (placeholder)</p>
+            <div className="mt-3 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => window.open(deployment.gps, '_blank', 'noopener,noreferrer')}
+                className="flex flex-1 items-center justify-center gap-2 rounded-card border border-border bg-surface-1/70 px-3 py-2 text-sm text-text-primary"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                View location
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveMedia({ deploymentTitle: deployment.title, items: deployment.media, index: 0 })}
+                className="flex flex-1 items-center justify-center gap-2 rounded-card border border-border bg-surface-1/70 px-3 py-2 text-sm text-text-primary"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 7a2 2 0 012-2h4l2-2h4l2 2h4a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                View media
+              </button>
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
@@ -256,6 +314,42 @@ export function DeploymentsTab() {
           </div>
         ))}
       </div>
+
+      {activeMedia && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-3 py-4" onClick={() => setActiveMedia(null)}>
+          <div className="w-full max-w-3xl rounded-card border border-border bg-surface-1 p-3" onClick={(event) => event.stopPropagation()}>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <div>
+                <p className="text-sm font-semibold text-text-primary">{activeMedia.deploymentTitle}</p>
+                <p className="text-xs text-text-tertiary">Media slideshow</p>
+              </div>
+              <button type="button" onClick={() => setActiveMedia(null)} className="rounded-full border border-border px-2.5 py-1 text-xs text-text-tertiary">
+                Close
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => setActiveMedia((current) => current ? { ...current, index: (current.index - 1 + current.items.length) % current.items.length } : current)}
+                className="rounded-pill border border-border px-3 py-1.5 text-sm text-text-primary"
+              >
+                Previous
+              </button>
+              <p className="text-xs text-text-tertiary">{activeMedia.index + 1} / {activeMedia.items.length}</p>
+              <button
+                type="button"
+                onClick={() => setActiveMedia((current) => current ? { ...current, index: (current.index + 1) % current.items.length } : current)}
+                className="rounded-pill border border-border px-3 py-1.5 text-sm text-text-primary"
+              >
+                Next
+              </button>
+            </div>
+
+            {renderMedia(activeMedia.items[activeMedia.index])}
+          </div>
+        </div>
+      )}
     </Card>
   )
 }
