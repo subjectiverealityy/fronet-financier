@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore'
 import { Chip } from '@/components/ui'
 import LocationDropdown from './LocationDropdown'
 import PeriodSelector from './PeriodSelector'
-import { RevenueTab, TransactionsTab, NetworkTab, DeploymentsTab } from './tabs/RevenueTab'
+import { RevenueTab, TransactionsTab, NetworkTab, DeploymentsTab, ReferralsTab } from './tabs/RevenueTab'
 import { KPIStrip, MarketplaceBanner, MOCK_KPIS } from './PeriodSelector'
 import PayoutModal from './PayoutModal'
 import type { DashboardTab } from '@/types'
@@ -15,6 +15,7 @@ const TABS: { id: DashboardTab; label: string }[] = [
   { id: 'deployments', label: 'Deployments' },
   { id: 'transactions', label: 'Transactions' },
   { id: 'network', label: 'Network' },
+  { id: 'referrals', label: 'Referrals' },
 ]
 
 export default function Dashboard() {
@@ -82,6 +83,7 @@ export default function Dashboard() {
         {activeTab === 'deployments' && <DeploymentsTab />}
         {activeTab === 'transactions' && <TransactionsTab />}
         {activeTab === 'network' && <NetworkTab />}
+        {activeTab === 'referrals' && <ReferralsTab />}
       </div>
 
       {/* Overlay to close dropdown */}

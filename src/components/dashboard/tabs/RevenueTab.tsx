@@ -349,6 +349,61 @@ const AP_LOCATIONS = [
   { name: '2nd Floor 1', downloadGB: 144.79, uploadGB: 20.34, totalGB: 165.13, activeClients: 1 },
 ]
 
+export function ReferralsTab() {
+  const referrals = [
+    { name: 'Aminat Yusuf', status: 'Active', started: 'Apr 2026', earned: 180000, monthsLeft: 6 },
+    { name: 'Bola Okafor', status: 'Active', started: 'May 2026', earned: 96000, monthsLeft: 5 },
+    { name: 'Ifeanyi Nwosu', status: 'Pending', started: 'Jun 2026', earned: 0, monthsLeft: 6 },
+  ]
+
+  return (
+    <>
+      <Card className="border-brand/30 bg-brand/5">
+        <CardHeader>
+          <div>
+            <p className="card-title">Referral earnings</p>
+            <p className="card-subtitle">You earn 5% of the first 6 months of each financier you refer.</p>
+          </div>
+        </CardHeader>
+
+        <div className="p-4 grid gap-2 md:grid-cols-2">
+          <div className="rounded-card border border-border bg-surface-2/60 p-3">
+            <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Active referrals</p>
+            <p className="mt-1 text-base font-semibold text-text-primary">3</p>
+          </div>
+          <div className="rounded-card border border-border bg-surface-2/60 p-3">
+            <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Total earnings</p>
+            <p className="mt-1 text-base font-semibold text-text-primary">{formatNaira(276000)}</p>
+          </div>
+        </div>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <p className="card-title">Your referrals</p>
+          <p className="text-xs text-text-tertiary">Commission applies for the first 6 months</p>
+        </CardHeader>
+        <div className="space-y-2 p-4">
+          {referrals.map((referral) => (
+            <div key={referral.name} className="rounded-card border border-border bg-surface-2/60 px-3 py-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-text-primary">{referral.name}</p>
+                  <p className="text-xs text-text-tertiary mt-0.5">Started {referral.started} · {referral.status}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-text-primary">{formatNaira(referral.earned)}</p>
+                  <p className="text-xs text-text-tertiary mt-0.5">{referral.monthsLeft} months left</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </>
+  )
+}
+
 export function NetworkTab() {
   return (
     <>

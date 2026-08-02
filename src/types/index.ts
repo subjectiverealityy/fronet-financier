@@ -150,7 +150,7 @@ export interface Offer {
 // ─── Utility ─────────────────────────────────────────────────────────────────
 
 export type DashboardView = 'all' | string // 'all' or a location id
-export type DashboardTab = 'revenue' | 'transactions' | 'network' | 'deployments'
+export type DashboardTab = 'revenue' | 'transactions' | 'network' | 'deployments' | 'referrals'
 
 // ─── Payouts ─────────────────────────────────────────────────────────────────
 
