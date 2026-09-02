@@ -64,7 +64,7 @@ export default function Dashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-surface-1 border-b border-border flex px-4 md:px-6">
+      <div className="tabs-scroll bg-surface-1 border-b border-border flex overflow-x-auto px-4 md:px-6">
         {TABS.map((tab) => (
           <Chip
             key={tab.id}

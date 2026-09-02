@@ -64,6 +64,14 @@
     @apply text-brand border-brand font-medium;
   }
 
+  .tabs-scroll {
+    scrollbar-width: none;
+  }
+
+  .tabs-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
   .kpi-card {
     @apply bg-[#1e1e1e] border border-border rounded-card p-3;
   }
