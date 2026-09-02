@@ -67,15 +67,15 @@ export default function ProfileScreen() {
   }
 
   const updatePersonal = (field: keyof PersonalKycProfile, value: string) => {
-    const nextPersonal = { ...personal, [field]: value }
-    setPersonal(nextPersonal)
-    saveProfile(nextPersonal, business)
+    setPersonal({ ...personal, [field]: value })
   }
 
   const updateBusiness = (field: keyof BusinessKycProfile, value: string) => {
-    const nextBusiness = { ...business, [field]: value }
-    setBusiness(nextBusiness)
-    saveProfile(personal, nextBusiness)
+    setBusiness({ ...business, [field]: value })
+  }
+
+  const handleSave = () => {
+    saveProfile(personal, business)
   }
 
   return (
@@ -97,7 +97,7 @@ export default function ProfileScreen() {
 
       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 safe-bottom flex flex-col gap-4">
         <div className="rounded-card border border-info/20 bg-info/10 p-3 text-sm text-info">
-          Changes are saved automatically.
+          Changes are saved when you click Save.
         </div>
 
         <div className="rounded-card border border-border bg-surface-1 p-2 flex gap-2">
@@ -227,6 +227,14 @@ export default function ProfileScreen() {
             </div>
           )}
         </div>
+
+        <button
+          type="button"
+          onClick={handleSave}
+          className="w-full rounded-card bg-brand text-black py-3 text-sm font-medium"
+        >
+          Save changes
+        </button>
 
       </div>
     </div>
