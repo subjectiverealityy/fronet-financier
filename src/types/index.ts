@@ -3,7 +3,6 @@
 export interface PersonalKycProfile {
   fullName: string
   nin: string
-  bvn: string
   phone: string
   address: string
   dob: string
@@ -12,8 +11,7 @@ export interface PersonalKycProfile {
 export interface BusinessKycProfile {
   businessName: string
   rcNumber: string
-  cacNumber: string
-  tin: string
+  businessType: string
   contactPerson: string
   address: string
 }
@@ -30,7 +28,8 @@ export interface User {
   lastName?: string
   email: string
   referralCode?: string
-  kycStatus: 'none' | 'pending' | 'verified'
+  kycStatus: 'none' | 'pending' | 'verified' | 'rejected'
+  kycRejectionReason?: string
   role: 'partner' | 'prospect' // partner = has active deployments
   kycProfile?: KycProfile
 }
