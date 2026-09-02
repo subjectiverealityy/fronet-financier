@@ -249,17 +249,10 @@ export default function ProfileScreen() {
         <button
           type="button"
           onClick={handleSave}
-          disabled={isSaving}
           className="w-full rounded-card bg-brand text-black py-3 text-sm font-medium"
         >
-          {isSaving ? 'Saving...' : 'Save changes'}
+          Save changes
         </button>
-
-        {saveError && (
-          <p className="text-xs text-danger text-center">
-            {saveError}
-          </p>
-        )}
 
       </div>
     </div>
