@@ -45,8 +45,6 @@ export default function ProfileScreen() {
   const [personal, setPersonal] = useState<PersonalKycProfile>(profile.personal)
   const [business, setBusiness] = useState<BusinessKycProfile>(profile.business)
   const kycStatus = user?.kycStatus ?? 'none'
-  const [isSaving, setIsSaving] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
 
   useEffect(() => {
     setPersonal(profile.personal)
