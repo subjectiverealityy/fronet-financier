@@ -26,7 +26,10 @@ export interface KycProfile {
 export interface User {
   id: string
   name: string
+  firstName?: string
+  lastName?: string
   email: string
+  referralCode?: string
   kycStatus: 'none' | 'pending' | 'verified'
   role: 'partner' | 'prospect' // partner = has active deployments
   kycProfile?: KycProfile
