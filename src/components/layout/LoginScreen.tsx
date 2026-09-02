@@ -13,7 +13,6 @@ export default function LoginScreen() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    navigate('/')  // add this line
     // TODO: replace with real API call — apiFetch('/auth/login', { method: 'POST', body: ... })
     await new Promise((r) => setTimeout(r, 800))
     setUser({
@@ -24,6 +23,7 @@ export default function LoginScreen() {
       role: 'partner',
     })
     setLoading(false)
+    navigate('/')  // add this line
   }
 
   return (
