@@ -98,7 +98,7 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
     <div className="flex flex-col gap-2">
       <div className="flex gap-2">
         {/* Earnings highlight */}
-        <div className="bg-brand/10 border border-brand/20 rounded-card p-4 md:flex-[1.4] md:flex md:flex-col md:justify-center">
+        <div className="bg-brand/10 border border-brand/20 rounded-card p-4 flex-1 md:flex-[1.4] md:flex md:flex-col md:justify-center">
           <p className="text-[10px] text-brand/60 uppercase tracking-wider mb-1">
             {selectedView === 'all' ? 'Total earnings' : 'Your earnings'}
           </p>
@@ -113,7 +113,7 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
         </div>
 
         {/* Payout balance + CTA */}
-        <div className="bg-surface-2 border border-border rounded-card p-4 flex items-center justify-between gap-3 md:flex-1 md:flex-col md:items-start md:justify-center md:gap-2">
+        <div className="bg-surface-2 border border-border rounded-card p-4 flex flex-col flex-1  justify-between gap-3 md:flex-1 md:items-start md:justify-center md:gap-2">
           <div>
             <p className="text-xs text-text-tertiary mb-1">Available for payout</p>
             <p className="text-lg font-medium text-text-primary">{formatNaira(kpis.payoutBalance)}</p>
@@ -121,7 +121,7 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
           <button
             onClick={onRequestPayout}
             disabled={kpis.payoutBalance <= 0 || kpis.payoutStatus === 'pending'}
-            className="btn-brand text-xs whitespace-nowrap disabled:opacity-40 disabled:cursor-default md:w-full md:text-center"
+            className="btn-brand text-xs disabled:opacity-40 disabled:cursor-default md:w-full md:text-center"
           >
             {kpis.payoutStatus === 'pending' ? 'Payout requested →' : 'Request payout →'}
           </button>
