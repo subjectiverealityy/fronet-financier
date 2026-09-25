@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { Card } from '@/components/ui'
 import { formatNaira } from '@/lib/utils'
+import { trackMarketplaceKycBannerClicked, trackOfferClicked } from '@/lib/ga'
 import type { Offer, DeploymentStage } from '@/types'
 
 const MOCK_OFFERS: Offer[] = [
@@ -37,7 +38,10 @@ export default function Marketplace() {
 
       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-3 flex flex-col gap-3 safe-bottom">
         {/* KYC banner — full width */}
-        {!kycDone && <KYCBanner onComplete={() => navigate('/profile')} />}
+        {!kycDone && <KYCBanner onComplete={() => {
+          trackMarketplaceKycBannerClicked()
+          navigate('/profile')
+        }} />}
 
         {/* Offer cards — 1 col mobile, 3 cols desktop */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -81,6 +85,10 @@ function KYCBanner({ onComplete }: { onComplete: () => void }) {
 
 function OfferCard({ offer, kycDone }: { offer: Offer; kycDone: boolean }) {
   const currentStageIndex = STAGES.indexOf(offer.stage)
+
+  const handleOfferClick = () => {
+    trackOfferClicked(offer.id)
+  }
 
   return (
     <Card>
@@ -154,9 +162,9 @@ function OfferCard({ offer, kycDone }: { offer: Offer; kycDone: boolean }) {
         {offer.fullyFunded ? (
           <button disabled className="btn-ghost opacity-50 cursor-default text-xs">Fully funded</button>
         ) : !kycDone ? (
-          <button className="btn-brand text-xs">Fund now</button>
+          <button onClick={handleOfferClick} className="btn-brand text-xs">Fund now</button>
         ) : (
-          <button className="btn-brand text-xs">Fund now</button>
+          <button onClick={handleOfferClick} className="btn-brand text-xs">Fund now</button>
         )}
       </div>
     </Card>

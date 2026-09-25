@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { useNavigate } from 'react-router-dom'
+import { trackSignupStarted, trackSignupSuccess } from '@/lib/ga'
 
 export default function SignupScreen() {
   const { setUser } = useAuthStore()
@@ -14,6 +15,7 @@ export default function SignupScreen() {
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
+    trackSignupStarted()
     setLoading(true)
     // TODO: replace with real API call — apiFetch('/auth/signup', { method: 'POST', body: ... })
     await new Promise((r) => setTimeout(r, 800))
@@ -28,7 +30,8 @@ export default function SignupScreen() {
       role: 'prospect',
     })
     setLoading(false)
-    navigate('/')  
+    trackSignupSuccess(email)
+    navigate('/')
   }
 
   return (

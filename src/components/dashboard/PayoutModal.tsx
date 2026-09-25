@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { formatNaira } from '@/lib/utils'
+import { trackPayoutButtonClicked, trackPayoutConfirmed } from '@/lib/ga'
 
 interface Props {
   open: boolean
@@ -15,10 +16,12 @@ export default function PayoutModal({ open, balance, onClose, onConfirm }: Props
   if (!open) return null
 
   async function handleConfirm() {
+    trackPayoutButtonClicked()
     setLoading(true)
     await onConfirm()
     setLoading(false)
     setDone(true)
+    trackPayoutConfirmed()
   }
 
   function handleClose() {

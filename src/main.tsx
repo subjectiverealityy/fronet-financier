@@ -6,7 +6,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App'
 import './index.css'
 
-GA4React.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID)
+const gaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID
+
+if (gaMeasurementId) {
+  GA4React.initialize(gaMeasurementId)
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {

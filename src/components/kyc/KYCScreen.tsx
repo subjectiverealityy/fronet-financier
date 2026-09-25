@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
+import { trackKycSubmitted, trackKycSuccess, trackResidencySelected } from '@/lib/ga'
 
 export default function KYCScreen() {
   const navigate = useNavigate()
@@ -16,11 +17,13 @@ export default function KYCScreen() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    trackKycSubmitted(residency)
     setLoading(true)
     await new Promise((r) => setTimeout(r, 1000))
     if (user) setUser({ ...user, kycStatus: 'pending' })
     setLoading(false)
     setDone(true)
+    trackKycSuccess(residency)
   }
 
   return (
@@ -86,14 +89,20 @@ export default function KYCScreen() {
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      onClick={() => setResidency('nigeria')}
+                      onClick={() => {
+                        setResidency('nigeria')
+                        trackResidencySelected('nigeria')
+                      }}
                       className={`flex-1 rounded-pill border px-3 py-2 text-sm ${residency === 'nigeria' ? 'border-brand bg-brand/10 text-brand' : 'border-border text-text-secondary'}`}
                     >
                       Nigeria
                     </button>
                     <button
                       type="button"
-                      onClick={() => setResidency('diaspora')}
+                      onClick={() => {
+                        setResidency('diaspora')
+                        trackResidencySelected('diaspora')
+                      }}
                       className={`flex-1 rounded-pill border px-3 py-2 text-sm ${residency === 'diaspora' ? 'border-brand bg-brand/10 text-brand' : 'border-border text-text-secondary'}`}
                     >
                       Outside Nigeria

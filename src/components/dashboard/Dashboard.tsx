@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useAuthStore } from '@/store/authStore'
 import { Chip } from '@/components/ui'
+import {
+  trackDashboardTabClicked,
+  trackMarketplaceBannerClicked,
+  trackProfileViewed,
+  trackPayoutCompleted,
+  trackPayoutInitiated,
+} from '@/lib/ga'
 import LocationDropdown from './LocationDropdown'
 import PeriodSelector from './PeriodSelector'
 import { RevenueTab, TransactionsTab, NetworkTab, DeploymentsTab, ReferralsTab } from './tabs/RevenueTab'
@@ -26,7 +33,9 @@ export default function Dashboard() {
   useAuthStore()
 
   async function handleConfirmPayout() {
+    trackPayoutInitiated()
     await new Promise((r) => setTimeout(r, 1000))
+    trackPayoutCompleted()
   }
 
   return (
@@ -38,7 +47,10 @@ export default function Dashboard() {
             <p className="text-lg font-bold text-text-primary">Fronet Financier</p>
             <button
               type="button"
-              onClick={() => navigate('/profile')}
+              onClick={() => {
+                trackProfileViewed()
+                navigate('/profile')
+              }}
               className="w-7 h-7 rounded-full border border-border bg-surface-2 flex items-center justify-center text-text-secondary"
               aria-label="Open profile"
             >
@@ -70,14 +82,20 @@ export default function Dashboard() {
             key={tab.id}
             label={tab.label}
             active={activeTab === tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => {
+              setActiveTab(tab.id)
+              trackDashboardTabClicked(tab.id)
+            }}
           />
         ))}
       </div>
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-3 flex flex-col gap-3 safe-bottom">
-        <MarketplaceBanner onClick={() => navigate('/marketplace')} />
+        <MarketplaceBanner onClick={() => {
+          trackMarketplaceBannerClicked()
+          navigate('/marketplace')
+        }} />
 
         {activeTab === 'revenue' && <RevenueTab />}
         {activeTab === 'deployments' && <DeploymentsTab />}

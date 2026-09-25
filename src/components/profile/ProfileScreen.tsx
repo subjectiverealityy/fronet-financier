@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
+import { trackProfileSaveStarted, trackProfileSaveSuccess, trackProfileViewed } from '@/lib/ga'
 import type { BusinessKycProfile, KycProfile, PersonalKycProfile } from '@/types'
 
 const emptyPersonalKyc: PersonalKycProfile = {
@@ -47,6 +48,7 @@ export default function ProfileScreen() {
   const kycStatus = user?.kycStatus ?? 'none'
 
   useEffect(() => {
+    trackProfileViewed()
     setPersonal(profile.personal)
     setBusiness(profile.business)
   }, [profile])
@@ -80,7 +82,9 @@ export default function ProfileScreen() {
   }
 
   const handleSave = async () => {
+    trackProfileSaveStarted()
     saveProfile(personal, business)
+    trackProfileSaveSuccess()
   }
 
   return (

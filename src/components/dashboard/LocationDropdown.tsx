@@ -1,5 +1,6 @@
 import { useDashboardStore } from '@/store/dashboardStore'
 import { cn } from '@/lib/utils'
+import { trackDashboardLocationChanged } from '@/lib/ga'
 
 // Placeholder locations — replace with useQuery(getMyLocations) once API is live
 const MY_LOCATIONS = [
@@ -24,6 +25,7 @@ export default function LocationDropdown({ open, onToggle, onClose }: Props) {
 
   function select(id: string) {
     setSelectedView(id)
+    trackDashboardLocationChanged(id)
     onClose()
   }
 

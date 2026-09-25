@@ -1,5 +1,10 @@
 import { useDashboardStore } from '@/store/dashboardStore'
 import { KpiCard } from '@/components/ui'
+import {
+  trackDashboardCustomRangeEnd,
+  trackDashboardCustomRangeStart,
+  trackDashboardPeriodChanged,
+} from '@/lib/ga'
 import { getMonthName, formatNaira } from '@/lib/utils'
 
 const RANGE_OPTIONS = [
@@ -30,7 +35,10 @@ export function PeriodSelector() {
           <button
             key={range.id}
             type="button"
-            onClick={() => setSelectedRange(range.id)}
+            onClick={() => {
+              setSelectedRange(range.id)
+              trackDashboardPeriodChanged(range.id)
+            }}
             className={`rounded-pill border px-2.5 py-1 text-[11px] transition-colors ${
               selectedRange === range.id
                 ? 'border-brand/40 bg-brand/10 text-brand'
@@ -49,7 +57,10 @@ export function PeriodSelector() {
             <input
               type="date"
               value={customStartDate}
-              onChange={(e) => setCustomStartDate(e.target.value)}
+              onChange={(e) => {
+                setCustomStartDate(e.target.value)
+                trackDashboardCustomRangeStart(e.target.value)
+              }}
               className="bg-transparent text-text-primary outline-none"
             />
           </label>
@@ -58,7 +69,10 @@ export function PeriodSelector() {
             <input
               type="date"
               value={customEndDate}
-              onChange={(e) => setCustomEndDate(e.target.value)}
+              onChange={(e) => {
+                setCustomEndDate(e.target.value)
+                trackDashboardCustomRangeEnd(e.target.value)
+              }}
               className="bg-transparent text-text-primary outline-none"
             />
           </label>
