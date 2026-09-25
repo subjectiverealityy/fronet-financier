@@ -1,10 +1,26 @@
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import GA4React from 'react-ga4';
 import { useAuthStore } from '@/store/authStore'
 import DashboardPage from '@/pages/DashboardPage'
 import MarketplacePage from '@/pages/MarketplacePage'
 import SignupPage from '@/pages/SignupPage'
 import KYCPage from '@/pages/KYCPage'
 import ProfilePage from '@/pages/ProfilePage'
+
+function usePageTracking() {
+  const location = useLocation()
+
+  useEffect(() => {
+    if (!import.meta.env.VITE_GA_MEASUREMENT_ID) return
+
+    GA4React.send({
+      hitType: 'pageview',
+      page: location.pathname,
+      title: document.title,
+    })
+  }, [location.pathname])
+}
 
 function ProtectedRoute() {
   const { isAuthenticated } = useAuthStore()
@@ -13,6 +29,8 @@ function ProtectedRoute() {
 }
 
 export default function App() {
+  usePageTracking()
+
   return (
     <Routes>
       <Route path="/signup" element={<SignupPage />} />

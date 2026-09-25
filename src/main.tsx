@@ -1,9 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import GA4React from 'react-ga4';
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App'
 import './index.css'
+
+GA4React.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID)
 
 const queryClient = new QueryClient({
   defaultOptions: {
