@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { trackSignupStarted, trackSignupSuccess } from '@/lib/ga'
 import { register, getCurrentUser, toUser } from '@/lib/api'
 import { saveTokens } from '@/lib/session'
@@ -12,7 +12,9 @@ export default function SignupScreen() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
-  const [referralCode, setReferralCode] = useState('')
+  // Pre-filled from a shared referral link: /signup?ref=CODE
+  const [searchParams] = useSearchParams()
+  const [referralCode, setReferralCode] = useState(searchParams.get('ref') ?? '')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 

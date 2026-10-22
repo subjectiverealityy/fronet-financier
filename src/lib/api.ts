@@ -18,6 +18,7 @@ import type {
   User,
   ApiProfile,
   ProfileUpdatePayload,
+  ReferralDetails,
 } from '@/types'
 import { useApiStatusStore } from '@/store/apiStatusStore'
 import { useAuthStore } from '@/store/authStore'
@@ -214,6 +215,10 @@ export const updateMyProfile = (payload: ProfileUpdatePayload) =>
     method: 'PATCH',
     body: JSON.stringify(payload),
   })
+
+// Referrals
+
+export const getMyReferrals = () => apiFetch<ReferralDetails>('/api/v1/referrals/me/')
 
 // Health Check
 export async function checkApiHealth(): Promise<HealthCheckResponse> {

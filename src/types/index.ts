@@ -92,6 +92,21 @@ export type ProfileUpdatePayload = Partial<
   Pick<ApiProfile, 'first_name' | 'last_name' | 'phone_number' | 'date_of_birth' | 'avatar_url'>
 >
 
+// Referrals
+
+export interface Referral {
+  email: string
+  date_joined: string
+  status: string // e.g. 'completed'
+  referred_at: string
+}
+
+export interface ReferralDetails {
+  referral_code: string
+  total_referrals: number
+  referrals: Referral[]
+}
+
 export interface TokenRefreshResponse {
   access: string
   refresh?: string // present when the backend rotates the refresh token

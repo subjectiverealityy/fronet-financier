@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { Card, CardHeader, Dot, StatusBadge, ViewAllFooter } from '@/components/ui'
 import { formatNaira, formatNairaFull, formatGB } from '@/lib/utils'
 import { useDashboardStore } from '@/store/dashboardStore'
+import { useQuery } from '@tanstack/react-query'
+import { useAuthStore } from '@/store/authStore'
+import { getMyReferrals } from '@/lib/api'
 
 // ─── Revenue Tab ─────────────────────────────────────────────────────────────
 
@@ -443,12 +446,62 @@ const AP_LOCATIONS = [
   { name: '2nd Floor 1', downloadGB: 144.79, uploadGB: 20.34, totalGB: 165.13, activeClients: 1 },
 ]
 
+const formatReferralDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
+const COMMISSION_MONTHS = 6
+
+// PLACEHOLDER: the backend does not return referral earnings yet. Replace with
+// real figures once /referrals/me/ provides them.
+const PLACEHOLDER_EARNINGS = 0
+
+// Commission runs for the first 6 months after the referral. May change later if referrals structure changes.
+function monthsLeft(referredAt: string) {
+  const start = new Date(referredAt)
+  const now = new Date()
+  const elapsed = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth())
+  return Math.max(0, COMMISSION_MONTHS - elapsed)
+}
+
 export function ReferralsTab() {
-  const referrals = [
-    { name: 'Aminat Yusuf', status: 'Active', started: 'Apr 2026', earned: 180000, monthsLeft: 6 },
-    { name: 'Bola Okafor', status: 'Active', started: 'May 2026', earned: 96000, monthsLeft: 5 },
-    { name: 'Ifeanyi Nwosu', status: 'Pending', started: 'Jun 2026', earned: 0, monthsLeft: 6 },
-  ]
+  const { user } = useAuthStore()
+  const [copied, setCopied] = useState(false)
+
+  // Keyed by user id so a different account signing in never sees cached referrals.
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['referrals', user?.id],
+    queryFn: getMyReferrals,
+    enabled: !!user,
+  })
+
+  // Opening this link pre-fills the code on the sign-up screen.
+  const shareLink = data ? `${window.location.origin}/signup?ref=${encodeURIComponent(data.referral_code)}` : ''
+
+  const copyShareLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareLink)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard can be blocked (e.g. non-HTTPS); the link is still visible to copy by hand.
+    }
+  }
+
+  if (isLoading) {
+    return <Card><p className="p-4 text-sm text-text-tertiary">Loading referrals…</p></Card>
+  }
+
+  if (isError || !data) {
+    return (
+      <Card>
+        <p role="alert" className="p-4 text-sm text-danger">
+          We couldn't load your referrals. Please try again later.
+        </p>
+      </Card>
+    )
+  }
 
   return (
     <>
@@ -460,15 +513,32 @@ export function ReferralsTab() {
           </div>
         </CardHeader>
 
-        <div className="p-4 grid gap-2 md:grid-cols-2">
+        <div className="p-4 grid gap-2 md:grid-cols-3">
           <div className="rounded-card border border-border bg-surface-2/60 p-3">
-            <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Active referrals</p>
-            <p className="mt-1 text-base font-semibold text-text-primary">3</p>
+            <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Your referral code</p>
+            <p className="mt-1 text-base font-semibold text-text-primary">{data.referral_code}</p>
+          </div>
+          <div className="rounded-card border border-border bg-surface-2/60 p-3">
+            <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Total referrals</p>
+            <p className="mt-1 text-base font-semibold text-text-primary">{data.total_referrals}</p>
           </div>
           <div className="rounded-card border border-border bg-surface-2/60 p-3">
             <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Total earnings</p>
-            <p className="mt-1 text-base font-semibold text-text-primary">{formatNaira(276000)}</p>
+            <p className="mt-1 text-base font-semibold text-text-primary">{formatNaira(PLACEHOLDER_EARNINGS)}</p>
           </div>
+        </div>
+
+        <div className="px-4 pb-4 flex items-center gap-2">
+          <p className="flex-1 min-w-0 truncate rounded-card border border-border bg-surface-2/60 px-3 py-2 text-xs text-text-secondary">
+            {shareLink}
+          </p>
+          <button
+            type="button"
+            onClick={copyShareLink}
+            className="btn-brand px-4 py-2 text-xs flex-shrink-0"
+          >
+            {copied ? 'Copied' : 'Copy link'}
+          </button>
         </div>
       </Card>
 
@@ -478,16 +548,23 @@ export function ReferralsTab() {
           <p className="text-xs text-text-tertiary">Commission applies for the first 6 months</p>
         </CardHeader>
         <div className="space-y-2 p-4">
-          {referrals.map((referral) => (
-            <div key={referral.name} className="rounded-card border border-border bg-surface-2/60 px-3 py-3">
+          {data.referrals.length === 0 && (
+            <p className="text-sm text-text-tertiary">
+              No referrals yet. Share your link to get started.
+            </p>
+          )}
+          {data.referrals.map((referral) => (
+            <div key={referral.email} className="rounded-card border border-border bg-surface-2/60 px-3 py-3">
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-medium text-text-primary">{referral.name}</p>
-                  <p className="text-xs text-text-tertiary mt-0.5">Started {referral.started} · {referral.status}</p>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-text-primary truncate">{referral.email}</p>
+                  <p className="text-xs text-text-tertiary mt-0.5">
+                    Started {formatReferralDate(referral.referred_at)} · {capitalize(referral.status)}
+                  </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-text-primary">{formatNaira(referral.earned)}</p>
-                  <p className="text-xs text-text-tertiary mt-0.5">{referral.monthsLeft} months left</p>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-sm font-semibold text-text-primary">{formatNaira(PLACEHOLDER_EARNINGS)}</p>
+                  <p className="text-xs text-text-tertiary mt-0.5">{monthsLeft(referral.referred_at)} months left</p>
                 </div>
               </div>
             </div>
