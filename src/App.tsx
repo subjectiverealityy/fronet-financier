@@ -8,6 +8,7 @@ import KYCPage from '@/pages/KYCPage'
 import ProfilePage from '@/pages/ProfilePage'
 import HealthCheckStatusBanner from '@/components/HealthCheckStatusBanner'
 import { trackPageView } from '@/lib/ga'
+import { restoreSession } from '@/lib/api'
 import { usePageEngagement } from '@/hooks/usePageEngagement'
 
 function usePageTracking() {
@@ -18,13 +19,25 @@ function usePageTracking() {
   }, [location.pathname])
 }
 
+let restoring: Promise<void> | null = null
+
+function useRestoreSession() {
+  useEffect(() => {
+    restoring ??= restoreSession().then((user) =>
+      useAuthStore.getState().restoreUser(user)
+    )
+  }, [])
+}
+
 function ProtectedRoute() {
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, isRestoring } = useAuthStore()
+  if (isRestoring) return null
   if (!isAuthenticated) return <Navigate to="/signup" replace />
   return <Outlet />
 }
 
 export default function App() {
+  useRestoreSession()
   usePageTracking()
   usePageEngagement()
 

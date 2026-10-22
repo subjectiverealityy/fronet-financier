@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { trackSignupStarted, trackSignupSuccess } from '@/lib/ga'
-import { register } from '@/lib/api'
+import { register, getCurrentUser, toUser } from '@/lib/api'
+import { saveTokens } from '@/lib/session'
 
 export default function SignupScreen() {
   const { setUser } = useAuthStore()
@@ -51,40 +52,20 @@ export default function SignupScreen() {
       })
 
       // Store the tokens returned by the backend.
-      localStorage.setItem('fronet-token', response.access)
-      localStorage.setItem('fronet-refresh-token', response.refresh)
+      saveTokens(response)
 
       // Fetch the canonical authenticated user record.
       // This avoids guessing user fields from the registration response.
-      const userResponse = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/v1/auth/user/`,
-        {
-          headers: {
-            Authorization: `Bearer ${response.access}`,
-          },
-        }
-      )
-
-      if (!userResponse.ok) {
+      let apiUser
+      try {
+        apiUser = await getCurrentUser()
+      } catch {
         throw new Error(
           'Your account was created, but we could not load your profile. Please sign in.'
         )
       }
 
-      const apiUser = await userResponse.json()
-
-      // Map the backend user into the existing frontend User model.
-      setUser({
-        id: String(apiUser.pk),
-        name:
-          apiUser.full_name ||
-          `${apiUser.first_name} ${apiUser.last_name}`.trim(),
-        firstName: apiUser.first_name,
-        lastName: apiUser.last_name,
-        email: apiUser.email,
-        kycStatus: 'none',
-        role: 'prospect',
-      })
+      setUser(toUser(apiUser))
 
       trackSignupSuccess(email.trim())
       navigate('/')

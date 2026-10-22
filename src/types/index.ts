@@ -67,7 +67,12 @@ export interface AuthResponse {
   user?: ApiUser
 }
 
-// Locations 
+export interface TokenRefreshResponse {
+  access: string
+  refresh?: string // present when the backend rotates the refresh token
+}
+
+// Locations
 
 export interface Location {
   id: string
