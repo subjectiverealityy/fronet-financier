@@ -11,6 +11,7 @@ import type {
   PayoutRequest,
   HealthCheckResponse,
   RegistrationPayload,
+  LoginPayload,
   AuthResponse,
   ApiUser,
   TokenRefreshResponse,
@@ -118,9 +119,11 @@ async function apiFetch<T>(path: string, options?: RequestInit, isRetry = false)
       },
     })
   } catch (err) {
+    // A cancelled request is not a connection problem. Pass it through unchanged.
+    if (err instanceof DOMException && err.name === 'AbortError') throw err
     // fetch rejects when no HTTP response was received (offline, DNS, CORS, server down)
     useApiStatusStore.getState().reportNetworkFailure()
-    throw err
+    throw new Error("Can't reach the server, check your connection.")
   }
   useApiStatusStore.getState().clearNetworkFailure()
 
@@ -146,6 +149,34 @@ export const register = (payload: RegistrationPayload) =>
     method: 'POST',
     body: JSON.stringify(payload),
   })
+
+export const login = (payload: LoginPayload) =>
+  apiFetch<AuthResponse>('/api/v1/auth/login/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+// Sends the refresh token so the backend can revoke it. Plain fetch: a logout
+// should not trigger a token refresh and retry. Clearing local tokens is the real
+// logout, so it happens even if the request fails.
+export async function signOut() {
+  const access = getAccessToken()
+  const refresh = getRefreshToken()
+  try {
+    await fetch(`${BASE_URL}/api/v1/auth/logout/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(access ? { Authorization: `Bearer ${access}` } : {}),
+      },
+      body: JSON.stringify(refresh ? { refresh } : {}),
+    })
+  } catch {
+    // ignore: local logout below still signs the user out
+  } finally {
+    endSession()
+  }
+}
 
 export const getCurrentUser = () => apiFetch<ApiUser>('/api/v1/auth/user/')
 

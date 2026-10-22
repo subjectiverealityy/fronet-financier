@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { trackSignupStarted, trackSignupSuccess } from '@/lib/ga'
 import { register, getCurrentUser, toUser } from '@/lib/api'
 import { saveTokens } from '@/lib/session'
@@ -206,6 +206,13 @@ export default function SignupScreen() {
             {loading ? 'Creating account…' : 'Sign up'}
           </button>
         </form>
+
+        <p className="text-text-tertiary text-sm mt-6 text-center">
+          Already have an account?{' '}
+          <Link to="/login" className="text-brand">
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   )

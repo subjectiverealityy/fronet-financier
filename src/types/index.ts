@@ -61,6 +61,11 @@ export interface RegistrationPayload {
   referral_code?: string
 }
 
+export interface LoginPayload {
+  email: string
+  password: string
+}
+
 export interface AuthResponse {
   access: string
   refresh: string

@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/authStore'
 import DashboardPage from '@/pages/DashboardPage'
 import MarketplacePage from '@/pages/MarketplacePage'
 import SignupPage from '@/pages/SignupPage'
+import LoginPage from '@/pages/LoginPage'
 import KYCPage from '@/pages/KYCPage'
 import ProfilePage from '@/pages/ProfilePage'
 import HealthCheckStatusBanner from '@/components/HealthCheckStatusBanner'
@@ -32,7 +33,15 @@ function useRestoreSession() {
 function ProtectedRoute() {
   const { isAuthenticated, isRestoring } = useAuthStore()
   if (isRestoring) return null
-  if (!isAuthenticated) return <Navigate to="/signup" replace />
+  if (!isAuthenticated) return <Navigate to="/login" replace />
+  return <Outlet />
+}
+
+// Send already signed-in users to the dashboard.
+function GuestRoute() {
+  const { isAuthenticated, isRestoring } = useAuthStore()
+  if (isRestoring) return null
+  if (isAuthenticated) return <Navigate to="/" replace />
   return <Outlet />
 }
 
@@ -45,7 +54,10 @@ export default function App() {
     <>
       <HealthCheckStatusBanner />
       <Routes>
-        <Route path="/signup" element={<SignupPage />} />
+        <Route element={<GuestRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+        </Route>
 
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<DashboardPage />} />

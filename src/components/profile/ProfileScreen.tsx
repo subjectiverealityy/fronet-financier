@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
+import { signOut } from '@/lib/api'
 import { trackProfileSaveStarted, trackProfileSaveSuccess, trackProfileViewed } from '@/lib/ga'
 import type { BusinessKycProfile, KycProfile, PersonalKycProfile } from '@/types'
 
@@ -85,6 +86,13 @@ export default function ProfileScreen() {
     trackProfileSaveStarted()
     saveProfile(personal, business)
     trackProfileSaveSuccess()
+  }
+
+  // Clearing the session makes ProtectedRoute redirect to /login.
+  const [signingOut, setSigningOut] = useState(false)
+  const handleSignOut = async () => {
+    setSigningOut(true)
+    await signOut()
   }
 
   return (
@@ -256,6 +264,15 @@ export default function ProfileScreen() {
           className="w-full rounded-card bg-brand text-black py-3 text-sm font-medium"
         >
           Save changes
+        </button>
+
+        <button
+          type="button"
+          onClick={handleSignOut}
+          disabled={signingOut}
+          className="w-full py-1 text-xs text-text-tertiary disabled:opacity-50"
+        >
+          {signingOut ? 'Logging out…' : 'Log out'}
         </button>
 
       </div>
