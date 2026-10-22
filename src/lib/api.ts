@@ -9,20 +9,46 @@ import type {
   Offer,
   Location,
   PayoutRequest,
+  HealthCheckResponse,
+  RegistrationPayload,
+  AuthResponse,
 } from '@/types'
+import { useApiStatusStore } from '@/store/apiStatusStore'
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? 'https://api.fronet.app'
+const BASE_URL = import.meta.env.VITE_API_URL 
+
+if (!BASE_URL) {
+  throw new Error('VITE_API_URL is not configured')
+}
+
+const HEALTH_CHECK_TIMEOUT_MS = 5000
+
+// Auth
+
+export const register = (payload: RegistrationPayload) =>
+  apiFetch<AuthResponse>('/api/v1/auth/registration/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const token = localStorage.getItem('fronet-token')
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  })
+  let res: Response
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options?.headers,
+      },
+    })
+  } catch (err) {
+    // fetch rejects when no HTTP response was received (offline, DNS, CORS, server down)
+    useApiStatusStore.getState().reportNetworkFailure()
+    throw err
+  }
+  useApiStatusStore.getState().clearNetworkFailure()
   if (!res.ok) {
     const error = await res.json().catch(() => ({}))
     throw new Error(error.message ?? `API error ${res.status}`)
@@ -30,12 +56,21 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json()
 }
 
-// ─── Locations ───────────────────────────────────────────────────────────────
+// Health Check
+export async function checkApiHealth(): Promise<HealthCheckResponse> {
+  const res = await fetch(`${BASE_URL}/api/v1/auth/health/`, {
+    signal: AbortSignal.timeout(HEALTH_CHECK_TIMEOUT_MS),
+  })
+  if (!res.ok) throw new Error(`Health check failed: ${res.status}`)
+  return res.json()
+}
+
+// Locations
 
 export const getMyLocations = () =>
   apiFetch<Location[]>('/financier/locations')
 
-// ─── Dashboard ───────────────────────────────────────────────────────────────
+// Dashboard
 
 interface DashboardParams {
   locationId?: string // omit for aggregated 'all'
@@ -73,7 +108,7 @@ export const getAPBreakdown = ({ locationId, month, year }: DashboardParams) => 
   return apiFetch<APLocation[]>(`/financier/dashboard${loc}/access-points?month=${month}&year=${year}`)
 }
 
-// ─── Transactions ─────────────────────────────────────────────────────────────
+// Transactions
 
 interface TxnParams extends DashboardParams {
   page?: number
@@ -87,11 +122,11 @@ export const getTransactions = ({ locationId, month, year, page = 1, limit = 20 
   )
 }
 
-// ─── Marketplace ─────────────────────────────────────────────────────────────
+// Marketplace 
 
 export const getOffers = () => apiFetch<Offer[]>('/marketplace/offers')
 
-// ─── KYC ─────────────────────────────────────────────────────────────────────
+// KYC
 
 export const submitKYC = (payload: { nin: string; bvn: string }) =>
   apiFetch<{ status: string }>('/kyc/submit', {
@@ -99,7 +134,7 @@ export const submitKYC = (payload: { nin: string; bvn: string }) =>
     body: JSON.stringify(payload),
   })
 
-// ─── Payouts ─────────────────────────────────────────────────────────────────
+// Payouts 
 
 export const getPayoutHistory = () =>
   apiFetch<PayoutRequest[]>('/financier/payouts')

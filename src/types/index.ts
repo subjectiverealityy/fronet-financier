@@ -1,4 +1,10 @@
-// ─── Auth ────────────────────────────────────────────────────────────────────
+// Auth
+
+export interface HealthCheckResponse {
+  status: string
+  service: string
+  version: string
+}
 
 export interface PersonalKycProfile {
   fullName: string
@@ -34,7 +40,34 @@ export interface User {
   kycProfile?: KycProfile
 }
 
-// ─── Locations ───────────────────────────────────────────────────────────────
+// Backend Authentication 
+
+export interface ApiUser {
+  pk: number
+  email: string
+  first_name: string
+  last_name: string
+  full_name: string
+  is_staff: boolean
+  date_joined: string
+}
+
+export interface RegistrationPayload {
+  email: string
+  password1: string
+  password2: string
+  first_name: string
+  last_name: string
+  referral_code?: string
+}
+
+export interface AuthResponse {
+  access: string
+  refresh: string
+  user?: ApiUser
+}
+
+// Locations 
 
 export interface Location {
   id: string
@@ -46,7 +79,7 @@ export interface Location {
   myEarnings: number
 }
 
-// ─── Dashboard ───────────────────────────────────────────────────────────────
+// Dashboard 
 
 export interface KPIs {
   grossRevenue: number
@@ -110,7 +143,7 @@ export interface APLocation {
   activeClients: number
 }
 
-// ─── Transactions ─────────────────────────────────────────────────────────────
+// Transactions 
 
 export type TxnStatus = 'Success' | 'Abandoned' | 'Failed'
 export type TxnChannel = 'BT' | 'bank' | 'card' | 'unknown'
@@ -130,7 +163,7 @@ export interface Transaction {
   hostel?: string // present in aggregated view
 }
 
-// ─── Marketplace ─────────────────────────────────────────────────────────────
+// Marketplace 
 
 export type DeploymentStage = 'paid' | 'procured' | 'invested' | 'live'
 
@@ -149,12 +182,12 @@ export interface Offer {
   gps: string
 }
 
-// ─── Utility ─────────────────────────────────────────────────────────────────
+// Utility 
 
 export type DashboardView = 'all' | string // 'all' or a location id
 export type DashboardTab = 'revenue' | 'transactions' | 'network' | 'deployments' | 'referrals'
 
-// ─── Payouts ─────────────────────────────────────────────────────────────────
+// Payouts 
 
 export type PayoutStatus = 'pending' | 'processing' | 'paid' | 'failed'
 
