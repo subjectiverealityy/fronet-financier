@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/authStore'
 import { signOut, getMyProfile, updateMyProfile } from '@/lib/api'
+import ChangePasswordModal from './ChangePasswordModal'
 import { trackProfileSaveStarted, trackProfileSaveSuccess, trackProfileViewed } from '@/lib/ga'
 import type {
   ApiProfile,
@@ -121,6 +122,7 @@ export default function ProfileScreen() {
 
   // Clearing the session makes ProtectedRoute redirect to /login.
   const [signingOut, setSigningOut] = useState(false)
+  const [changingPassword, setChangingPassword] = useState(false)
   const handleSignOut = async () => {
     setSigningOut(true)
     await signOut()
@@ -314,16 +316,24 @@ export default function ProfileScreen() {
           {saveMutation.isPending ? 'Saving…' : 'Save changes'}
         </button>
 
-        <button
-          type="button"
-          onClick={handleSignOut}
-          disabled={signingOut}
-          className="w-full py-1 text-xs text-text-tertiary disabled:opacity-50"
-        >
-          {signingOut ? 'Logging out…' : 'Log out'}
-        </button>
+        <div className="flex items-center justify-center gap-2 py-1 text-xs text-text-tertiary">
+          <button type="button" onClick={() => setChangingPassword(true)}>
+            Change password
+          </button>
+          <span aria-hidden="true">·</span>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            disabled={signingOut}
+            className="disabled:opacity-50"
+          >
+            {signingOut ? 'Logging out…' : 'Log out'}
+          </button>
+        </div>
 
       </div>
+
+      <ChangePasswordModal open={changingPassword} onClose={() => setChangingPassword(false)} />
     </div>
   )
 }

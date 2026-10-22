@@ -5,6 +5,8 @@ import DashboardPage from '@/pages/DashboardPage'
 import MarketplacePage from '@/pages/MarketplacePage'
 import SignupPage from '@/pages/SignupPage'
 import LoginPage from '@/pages/LoginPage'
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
+import ResetPasswordPage from '@/pages/ResetPasswordPage'
 import KYCPage from '@/pages/KYCPage'
 import ProfilePage from '@/pages/ProfilePage'
 import HealthCheckStatusBanner from '@/components/HealthCheckStatusBanner'
@@ -57,7 +59,11 @@ export default function App() {
         <Route element={<GuestRoute />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         </Route>
+
+        {/* Open to everyone: the reset email link must work even if the user is signed in. */}
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<DashboardPage />} />

@@ -92,6 +92,25 @@ export type ProfileUpdatePayload = Partial<
   Pick<ApiProfile, 'first_name' | 'last_name' | 'phone_number' | 'date_of_birth' | 'avatar_url'>
 >
 
+// Passwords
+
+export interface ChangePasswordPayload {
+  old_password: string
+  new_password1: string
+  new_password2: string
+}
+
+export interface ResetPasswordConfirmPayload {
+  uid: string // from the reset email link, sent back unchanged
+  token: string
+  new_password1: string
+  new_password2: string
+}
+
+export interface DetailResponse {
+  detail: string
+}
+
 // Referrals
 
 export interface Referral {

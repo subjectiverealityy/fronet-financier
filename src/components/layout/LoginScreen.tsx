@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { login, getCurrentUser, toUser, ApiError } from '@/lib/api'
 import { saveTokens } from '@/lib/session'
 
 export default function LoginScreen() {
   const { setUser } = useAuthStore()
   const navigate = useNavigate()
+  // e.g. "Your password has been reset" after the reset-password screen
+  const notice = (useLocation().state as { message?: string } | null)?.message
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -64,6 +66,10 @@ export default function LoginScreen() {
           </p>
         </div>
 
+        {notice && (
+          <p className="text-sm text-text-secondary mb-4">{notice}</p>
+        )}
+
         <form onSubmit={handleLogin} className="flex flex-col gap-3">
           <div>
             <label className="text-xs text-text-tertiary mb-1.5 block">
@@ -94,6 +100,10 @@ export default function LoginScreen() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-surface-1 border border-border-strong rounded-card px-4 py-3 text-sm text-text-primary focus:outline-none focus:border-brand/50"
             />
+
+            <Link to="/forgot-password" className="text-xs text-text-tertiary mt-1.5 inline-block">
+              Forgot password?
+            </Link>
           </div>
 
           {error && (

@@ -19,6 +19,9 @@ import type {
   ApiProfile,
   ProfileUpdatePayload,
   ReferralDetails,
+  ChangePasswordPayload,
+  ResetPasswordConfirmPayload,
+  DetailResponse,
 } from '@/types'
 import { useApiStatusStore } from '@/store/apiStatusStore'
 import { useAuthStore } from '@/store/authStore'
@@ -213,6 +216,26 @@ export const getMyProfile = () => apiFetch<ApiProfile>('/api/v1/profiles/me/')
 export const updateMyProfile = (payload: ProfileUpdatePayload) =>
   apiFetch<ApiProfile>('/api/v1/profiles/me/', {
     method: 'PATCH',
+    body: JSON.stringify(payload),
+  })
+
+// Passwords
+
+export const changePassword = (payload: ChangePasswordPayload) =>
+  apiFetch<DetailResponse>('/api/v1/auth/password/change/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+export const requestPasswordReset = (email: string) =>
+  apiFetch<DetailResponse>('/api/v1/auth/password/reset/', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  })
+
+export const confirmPasswordReset = (payload: ResetPasswordConfirmPayload) =>
+  apiFetch<DetailResponse>('/api/v1/auth/password/reset/confirm/', {
+    method: 'POST',
     body: JSON.stringify(payload),
   })
 
