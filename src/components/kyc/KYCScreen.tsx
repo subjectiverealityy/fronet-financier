@@ -5,7 +5,7 @@ import { trackKycSubmitted, trackKycSuccess, trackResidencySelected } from '@/li
 
 export default function KYCScreen() {
   const navigate = useNavigate()
-  const { user, setUser } = useAuthStore()
+  const { updateUser } = useAuthStore()
   const [nin, setNin] = useState('')
   const [bvn, setBvn] = useState('')
   const [residency, setResidency] = useState<'nigeria' | 'diaspora'>('nigeria')
@@ -20,7 +20,7 @@ export default function KYCScreen() {
     trackKycSubmitted(residency)
     setLoading(true)
     await new Promise((r) => setTimeout(r, 1000))
-    if (user) setUser({ ...user, kycStatus: 'pending' })
+    updateUser({ kycStatus: 'pending' })
     setLoading(false)
     setDone(true)
     trackKycSuccess(residency)

@@ -8,6 +8,7 @@ interface AuthState {
   isAuthenticated: boolean
   isRestoring: boolean // true until the startup session check finishes
   setUser: (user: User) => void
+  updateUser: (changes: Partial<User>) => void
   restoreUser: (user: User | null) => void
   logout: () => void
 }
@@ -19,6 +20,10 @@ export const useAuthStore = create<AuthState>()((set) => ({
   setUser: (user) => {
     trackLoginSuccess()
     set({ user, isAuthenticated: true })
+  },
+  // Edits to the signed-in user (e.g. profile save).
+  updateUser: (changes) => {
+    set((state) => (state.user ? { user: { ...state.user, ...changes } } : {}))
   },
   // Startup restore: while the restore was still in flight, keep that session instead of overwriting it.
   restoreUser: (user) => {

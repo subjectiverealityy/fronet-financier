@@ -72,6 +72,26 @@ export interface AuthResponse {
   user?: ApiUser
 }
 
+// Profile
+
+export interface ApiProfile {
+  id: number
+  user: number
+  email: string
+  first_name: string
+  last_name: string
+  phone_number: string | null
+  date_of_birth: string | null // YYYY-MM-DD
+  avatar_url: string | null
+  created_at: string
+  updated_at: string
+}
+
+// Only the writable fields; id, user, email and timestamps are read-only.
+export type ProfileUpdatePayload = Partial<
+  Pick<ApiProfile, 'first_name' | 'last_name' | 'phone_number' | 'date_of_birth' | 'avatar_url'>
+>
+
 export interface TokenRefreshResponse {
   access: string
   refresh?: string // present when the backend rotates the refresh token

@@ -1,9 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/authStore'
-import { signOut } from '@/lib/api'
+import { signOut, getMyProfile, updateMyProfile } from '@/lib/api'
 import { trackProfileSaveStarted, trackProfileSaveSuccess, trackProfileViewed } from '@/lib/ga'
-import type { BusinessKycProfile, KycProfile, PersonalKycProfile } from '@/types'
+import type {
+  ApiProfile,
+  BusinessKycProfile,
+  KycProfile,
+  PersonalKycProfile,
+  User,
+} from '@/types'
 
 const emptyPersonalKyc: PersonalKycProfile = {
   fullName: '',
@@ -21,28 +28,48 @@ const emptyBusinessKyc: BusinessKycProfile = {
   address: '',
 }
 
-function buildProfile(userName: string, existing?: KycProfile): KycProfile {
+// Name, phone and date of birth come from the backend profile. NIN, address and
+// business details have no backend field yet, so they stay local (reset on reload).
+function buildProfile(user: User | null, apiProfile?: ApiProfile): KycProfile {
+  const local = user?.kycProfile
   return {
     personal: {
       ...emptyPersonalKyc,
-      fullName: userName,
-      ...(existing?.personal ?? {}),
+      ...(local?.personal ?? {}),
+      fullName: apiProfile
+        ? `${apiProfile.first_name} ${apiProfile.last_name}`.trim()
+        : user?.name ?? '',
+      phone: apiProfile?.phone_number ?? local?.personal.phone ?? '',
+      dob: apiProfile?.date_of_birth ?? local?.personal.dob ?? '',
     },
     business: {
       ...emptyBusinessKyc,
-      ...(existing?.business ?? {}),
+      ...(local?.business ?? {}),
     },
   }
 }
 
+// The backend stores first and last name separately: first word is the first
+// name, the rest is the last name. Change if the provider handles it differently. Both backend and frontend should match in the final implementation.
+function splitFullName(fullName: string) {
+  const [first = '', ...rest] = fullName.trim().split(/\s+/)
+  return { first_name: first, last_name: rest.join(' ') }
+}
+
 export default function ProfileScreen() {
   const navigate = useNavigate()
-  const { user, setUser } = useAuthStore()
+  const queryClient = useQueryClient()
+  const { user, updateUser } = useAuthStore()
 
-  const profile = useMemo(
-    () => buildProfile(user?.name ?? '', user?.kycProfile),
-    [user?.name, user?.kycProfile]
-  )
+  // Keyed by user id so a different account signing in never sees a cached profile.
+  const profileKey = ['profile', user?.id]
+  const { data: apiProfile, isLoading, isError } = useQuery({
+    queryKey: profileKey,
+    queryFn: getMyProfile,
+    enabled: !!user,
+  })
+
+  const profile = useMemo(() => buildProfile(user, apiProfile), [user, apiProfile])
 
   const [personal, setPersonal] = useState<PersonalKycProfile>(profile.personal)
   const [business, setBusiness] = useState<BusinessKycProfile>(profile.business)
@@ -50,29 +77,29 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     trackProfileViewed()
+  }, [])
+
+  // Refill the form when the backend profile arrives or after a save.
+  useEffect(() => {
     setPersonal(profile.personal)
     setBusiness(profile.business)
   }, [profile])
 
-  const saveProfile = (
-    nextPersonal: PersonalKycProfile,
-    nextBusiness: BusinessKycProfile
-  ) => {
-    if (!user) return
-
-    const nextProfile: KycProfile = {
-      personal: nextPersonal,
-      business: nextBusiness,
-    }
-
-    setUser({
-      ...user,
-      name: nextPersonal.fullName.trim() || user.name,
-      kycProfile: nextProfile,
-      kycStatus: user.kycStatus === 'verified' ? 'verified' : 'pending',
-      kycRejectionReason: undefined,
-    })
-  }
+  const saveMutation = useMutation({
+    mutationFn: updateMyProfile,
+    onSuccess: (updated) => {
+      queryClient.setQueryData(profileKey, updated)
+      updateUser({
+        name: `${updated.first_name} ${updated.last_name}`.trim(),
+        firstName: updated.first_name,
+        lastName: updated.last_name,
+        kycProfile: { personal, business },
+        kycStatus: user?.kycStatus === 'verified' ? 'verified' : 'pending',
+        kycRejectionReason: undefined,
+      })
+      trackProfileSaveSuccess()
+    },
+  })
 
   const updatePersonal = (field: keyof PersonalKycProfile, value: string) => {
     setPersonal({ ...personal, [field]: value })
@@ -82,10 +109,14 @@ export default function ProfileScreen() {
     setBusiness({ ...business, [field]: value })
   }
 
-  const handleSave = async () => {
+  const handleSave = () => {
+    if (!user || saveMutation.isPending) return
     trackProfileSaveStarted()
-    saveProfile(personal, business)
-    trackProfileSaveSuccess()
+    saveMutation.mutate({
+      ...splitFullName(personal.fullName),
+      phone_number: personal.phone.trim(),
+      date_of_birth: personal.dob || null, // the backend rejects '' for a date
+    })
   }
 
   // Clearing the session makes ProtectedRoute redirect to /login.
@@ -258,12 +289,29 @@ export default function ProfileScreen() {
           )}
         </div>
 
+        {isError && (
+          <p role="alert" className="text-sm text-danger">
+            We couldn't load your saved profile. Changes you save will still be sent.
+          </p>
+        )}
+
+        {saveMutation.isError && (
+          <p role="alert" className="text-sm text-danger">
+            {saveMutation.error.message}
+          </p>
+        )}
+
+        {saveMutation.isSuccess && (
+          <p className="text-sm text-text-tertiary">Changes saved.</p>
+        )}
+
         <button
           type="button"
           onClick={handleSave}
-          className="w-full rounded-card bg-brand text-black py-3 text-sm font-medium"
+          disabled={isLoading || saveMutation.isPending}
+          className="w-full rounded-card bg-brand text-black py-3 text-sm font-medium disabled:opacity-50"
         >
-          Save changes
+          {saveMutation.isPending ? 'Saving…' : 'Save changes'}
         </button>
 
         <button

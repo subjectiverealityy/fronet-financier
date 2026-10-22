@@ -16,6 +16,8 @@ import type {
   ApiUser,
   TokenRefreshResponse,
   User,
+  ApiProfile,
+  ProfileUpdatePayload,
 } from '@/types'
 import { useApiStatusStore } from '@/store/apiStatusStore'
 import { useAuthStore } from '@/store/authStore'
@@ -201,6 +203,17 @@ export async function restoreSession(): Promise<User | null> {
     return null
   }
 }
+
+// Profile
+
+// Created automatically by the backend on first access.
+export const getMyProfile = () => apiFetch<ApiProfile>('/api/v1/profiles/me/')
+
+export const updateMyProfile = (payload: ProfileUpdatePayload) =>
+  apiFetch<ApiProfile>('/api/v1/profiles/me/', {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  })
 
 // Health Check
 export async function checkApiHealth(): Promise<HealthCheckResponse> {
