@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/authStore'
+import { getKycSettings, updateKycSettings, ApiError } from '@/lib/api'
 import { trackKycSubmitted, trackKycSuccess, trackResidencySelected } from '@/lib/ga'
 
 export default function KYCScreen() {
   const navigate = useNavigate()
-  const { updateUser } = useAuthStore()
+  const queryClient = useQueryClient()
+  const { user, updateUser } = useAuthStore()
   const [nin, setNin] = useState('')
   const [bvn, setBvn] = useState('')
   const [residency, setResidency] = useState<'nigeria' | 'diaspora'>('nigeria')
@@ -13,17 +16,55 @@ export default function KYCScreen() {
   const [currency, setCurrency] = useState('NGN')
   const [passportId, setPassportId] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [done, setDone] = useState(false)
+
+  // Keyed by user id so a different account signing in never sees cached settings.
+  const kycKey = ['kyc-settings', user?.id]
+  const { data: savedSettings } = useQuery({
+    queryKey: kycKey,
+    queryFn: getKycSettings,
+    enabled: !!user,
+    retry: (count, err) => !(err instanceof ApiError && err.status === 404) && count < 2,
+  })
+
+  // Pre-fill country and currency from what the backend already has.
+  useEffect(() => {
+    if (!savedSettings) return
+    if (savedSettings.country_of_residence) {
+      setCountry(savedSettings.country_of_residence)
+      setResidency(savedSettings.country_of_residence === 'NG' ? 'nigeria' : 'diaspora')
+    }
+    if (savedSettings.preferred_currency) setCurrency(savedSettings.preferred_currency)
+  }, [savedSettings])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     trackKycSubmitted(residency)
+    setError('')
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 1000))
-    updateUser({ kycStatus: 'pending' })
-    setLoading(false)
-    setDone(true)
-    trackKycSuccess(residency)
+    try {
+      // Only country and currency go to the backend. Per the API guide, NIN, BVN
+      // and passport numbers must not be sent until a KYC provider is integrated.
+      const saved = await updateKycSettings(
+        residency === 'nigeria'
+          ? { country_of_residence: 'NG', preferred_currency: 'NGN' }
+          : { country_of_residence: country, preferred_currency: currency }
+      )
+      queryClient.setQueryData(kycKey, saved)
+      // PLACEHOLDER: the backend has no KYC status yet, so this stays local.
+      updateUser({ kycStatus: 'pending' })
+      setDone(true)
+      trackKycSuccess(residency)
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong. Please try again.'
+      )
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -184,6 +225,11 @@ export default function KYCScreen() {
                 <p className="text-xs text-text-tertiary leading-relaxed">
                   By submitting, you consent to FroNet verifying your identity through NIMC and your bank. Diaspora submissions may require additional compliance checks.
                 </p>
+                {error && (
+                  <p role="alert" className="text-sm text-danger">
+                    {error}
+                  </p>
+                )}
                 <button
                   type="submit"
                   disabled={loading || nin.length !== 11 || bvn.length !== 11 || (residency === 'diaspora' && passportId.trim().length < 3)}

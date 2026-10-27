@@ -307,3 +307,10 @@ export interface InvestorDashboard {
   recent_investments: unknown[]
   recent_distributions: unknown[]
 }
+
+// KYC settings (GET/PATCH /api/v1/financing/kyc/me/). Only these two fields are
+// writable; NIN, BVN, passport and bank details must never be sent here.
+export interface KycSettings {
+  country_of_residence: string // assumed ISO code, e.g. "NG" (not specified in the guide)
+  preferred_currency: string // e.g. "NGN"
+}

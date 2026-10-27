@@ -10,6 +10,7 @@ import type {
   Commitment,
   CommitmentPayload,
   InvestorDashboard,
+  KycSettings,
   Location,
   PayoutRequest,
   HealthCheckResponse,
@@ -314,6 +315,16 @@ export const getTransactions = ({ locationId, month, year, page = 1, limit = 20 
 
 // Marketplace 
 
+// KYC settings
+
+export const getKycSettings = () => apiFetch<KycSettings>('/api/v1/financing/kyc/me/')
+
+export const updateKycSettings = (payload: Partial<KycSettings>) =>
+  apiFetch<KycSettings>('/api/v1/financing/kyc/me/', {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  })
+
 // Investor dashboard
 
 export const getInvestorDashboard = () =>
@@ -328,14 +339,6 @@ export const getOffer = (slug: string) =>
 // Creates a pending commitment, not a payment. Requires sign-in.
 export const createCommitment = (slug: string, payload: CommitmentPayload) =>
   apiFetch<Commitment>(`/api/v1/financing/offers/${encodeURIComponent(slug)}/commitments/`, {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
-
-// KYC
-
-export const submitKYC = (payload: { nin: string; bvn: string }) =>
-  apiFetch<{ status: string }>('/kyc/submit', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
