@@ -5,8 +5,8 @@ import { trackDashboardLocationChanged } from '@/lib/ga'
 // Placeholder locations — replace with useQuery(getMyLocations) once API is live
 const MY_LOCATIONS = [
   { id: 'bims', name: 'Bims Hostel', institution: 'University of Ilorin', status: 'Live', myStakePct: 15 },
-  { id: 'zaha', name: 'ZAHA Hostel', institution: 'University of Lagos', status: 'Live', myStakePct: 100 },
-  { id: 'kings', name: 'Kings Court', institution: 'Covenant University', status: 'Live', myStakePct: 32 },
+  { id: 'akoka', name: 'Akoka Heights Hostel', institution: 'University of Lagos', status: 'Live', myStakePct: 100 },
+  { id: 'canaanland', name: 'Canaanland Lodge', institution: 'Covenant University', status: 'Live', myStakePct: 32 },
 ]
 
 interface Props {
@@ -48,7 +48,7 @@ export default function LocationDropdown({ open, onToggle, onClose }: Props) {
         <div className="absolute top-full left-0 mt-2 w-72 bg-surface-1 border border-border-strong
                 rounded-card overflow-hidden shadow-2xl animate-fade-in">
           {/* All deployments */}
-          <p className="text-[10px] text-text-tertiary uppercase tracking-widest px-4 pt-3 pb-1.5">
+          <p className="text-[10px] text-text-tertiary uppercase tracking-widest px-4 py-2.5">
             My deployments
           </p>
           <DropdownItem
@@ -59,7 +59,7 @@ export default function LocationDropdown({ open, onToggle, onClose }: Props) {
           />
 
           {/* Individual locations */}
-          <p className="text-[10px] text-text-tertiary uppercase tracking-widest px-4 pt-3 pb-1.5 border-t border-border mt-1">
+          <p className="text-[10px] text-text-tertiary uppercase tracking-widest px-4 py-2.5 border-t border-border">
             Individual locations
           </p>
           {MY_LOCATIONS.map((loc) => (

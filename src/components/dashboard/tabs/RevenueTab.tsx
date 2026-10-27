@@ -60,8 +60,8 @@ const DEPLOYMENTS = [
 
 const INVESTMENT_PERFORMANCE_ROWS = [
   { name: 'Bims Hostel', sub: 'University of Ilorin', stake: 15, amt: 16929, color: '#03c9a6' },
-  { name: 'ZAHA Hostel', sub: 'University of Lagos', stake: 100, amt: 89400, color: '#3d8eff' },
-  { name: 'Kings Court', sub: 'Covenant University', stake: 32, amt: 4902, color: '#f5a623' },
+  { name: 'Akoka Heights Hostel', sub: 'University of Lagos', stake: 100, amt: 89400, color: '#3d8eff' },
+  { name: 'Canaanland Lodge', sub: 'Covenant University', stake: 32, amt: 4902, color: '#f5a623' },
 ]
 
 export function RevenueTab() {
@@ -362,10 +362,10 @@ export function DeploymentsTab() {
 const MOCK_TXNS = [
   { id: '1', date: 'Apr 10', transactionId: 'TRX-1041', userId: 'UI-2041', amount: 2499, fees: 37.49, net: 2461.51, status: 'Success' as const, apLocation: 'Bims 3', hostel: 'Bims Hostel' },
   { id: '2', date: 'Apr 11', transactionId: 'TRX-1042', userId: 'UI-2042', amount: 14699, fees: 320.49, net: 14378.51, status: 'Success' as const, apLocation: 'Bims 2', hostel: 'Bims Hostel' },
-  { id: '3', date: 'Apr 1', transactionId: 'TRX-1043', userId: 'UI-2043', amount: 2499, fees: 0, net: null, status: 'Abandoned' as const, apLocation: '—', hostel: 'ZAHA Hostel' },
-  { id: '4', date: 'Apr 23', transactionId: 'TRX-1044', userId: 'UI-2044', amount: 2499, fees: 0, net: null, status: 'Failed' as const, apLocation: '—', hostel: 'Kings Court' },
+  { id: '3', date: 'Apr 1', transactionId: 'TRX-1043', userId: 'UI-2043', amount: 2499, fees: 0, net: null, status: 'Abandoned' as const, apLocation: '—', hostel: 'Akoka Heights Hostel' },
+  { id: '4', date: 'Apr 23', transactionId: 'TRX-1044', userId: 'UI-2044', amount: 2499, fees: 0, net: null, status: 'Failed' as const, apLocation: '—', hostel: 'Canaanland Lodge' },
   { id: '5', date: 'Apr 27', transactionId: 'TRX-1045', userId: 'UI-2045', amount: 9559, fees: 243.39, net: 9315.61, status: 'Success' as const, apLocation: '2nd Floor 3', hostel: 'Bims Hostel' },
-  { id: '6', date: 'Apr 22', transactionId: 'TRX-1046', userId: 'UI-2046', amount: 9559, fees: 243.39, net: 9315.61, status: 'Success' as const, apLocation: '1st Floor 4', hostel: 'ZAHA Hostel' },
+  { id: '6', date: 'Apr 22', transactionId: 'TRX-1046', userId: 'UI-2046', amount: 9559, fees: 243.39, net: 9315.61, status: 'Success' as const, apLocation: '1st Floor 4', hostel: 'Akoka Heights Hostel' },
 ]
 
 export function TransactionsTab() {
@@ -430,12 +430,12 @@ export function TransactionsTab() {
 // ─── Network Tab ─────────────────────────────────────────────────────────────
 
 const GATEWAY = [
-  { label: 'Approved', description: 'Successful — payment captured', count: 101, pct: 85.6, color: '#03c9a6' },
+  { label: 'Approved', description: 'Successful - payment captured', count: 101, pct: 85.6, color: '#03c9a6' },
   { label: 'Not completed', description: 'Customer abandoned before completing', count: 10, pct: 8.5, color: '#f5a623' },
-  { label: 'Session timed out', description: 'OPay/bank session timed out', count: 3, pct: 2.5, color: '#ff5a5a' },
+  { label: 'Session timed out', description: 'Bank session timed out', count: 3, pct: 2.5, color: '#ff5a5a' },
   { label: 'No transfer received', description: 'Bank transfer not received', count: 2, pct: 1.7, color: '#ff5a5a' },
   { label: 'Marked successful', description: 'Marked successful but check status', count: 1, pct: 0.8, color: '#555' },
-  { label: 'Wrong amount', description: 'Wrong amount — check reconciliation', count: 1, pct: 0.8, color: '#555' },
+  { label: 'Wrong amount', description: 'Wrong amount - check reconciliation', count: 1, pct: 0.8, color: '#555' },
 ]
 
 const AP_LOCATIONS = [
