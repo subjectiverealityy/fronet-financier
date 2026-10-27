@@ -289,3 +289,21 @@ export interface PayoutRequest {
   requestedAt: string
   processedAt?: string
 }
+// Investor dashboard (GET /api/v1/financing/dashboard/me/)
+
+export interface InvestorPortfolio {
+  confirmed_investment_amount: number
+  pending_commitment_amount: number // awaiting payment verification; not invested yet
+  confirmed_investment_count: number
+  distribution_available: number
+  distribution_paid: number
+  ledger_balance: number
+  currency: string
+}
+
+export interface InvestorDashboard {
+  portfolio: InvestorPortfolio
+  // Item shapes aren't documented yet (the guide's example has empty lists).
+  recent_investments: unknown[]
+  recent_distributions: unknown[]
+}

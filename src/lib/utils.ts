@@ -53,3 +53,21 @@ export const MONTHS = Array.from({ length: 12 }, (_, i) => ({
 }))
 
 export const YEARS = [2024, 2025, 2026]
+
+// For backend amounts: decimal strings or numbers in a given currency code.
+export function formatMoney(amount: string | number, currency: string): string {
+  try {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })
+      .format(Number(amount))
+      .replace('NGN', '₦')
+      .trim()
+  } catch {
+    // Unknown currency code: show it plainly rather than crash.
+    return `${currency} ${amount}`
+  }
+}

@@ -1,5 +1,8 @@
 // Pieces shared by the marketplace offer cards and the offer detail page.
 import type { Offer, DeploymentStage } from '@/types'
+import { formatMoney } from '@/lib/utils'
+
+export { formatMoney }
 
 // PLACEHOLDER: offers from the backend have no rooms, install cost, deployment
 // stage or GPS link yet. Replace these once the backend adds them.
@@ -13,24 +16,6 @@ export const PLACEHOLDER = {
 const STAGES: DeploymentStage[] = ['paid', 'procured', 'invested', 'live']
 const STAGE_LABELS: Record<DeploymentStage, string> = {
   paid: 'Paid', procured: 'Procured', invested: 'Invested', live: 'Live',
-}
-
-// Backend amounts are decimal strings in the offer's own currency.
-export function formatMoney(amount: string | number, currency: string) {
-  try {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    })
-      .format(Number(amount))
-      .replace('NGN', '₦')
-      .trim()
-  } catch {
-    // Unknown currency code: show it plainly rather than crash the card.
-    return `${currency} ${amount}`
-  }
 }
 
 const formatDate = (iso: string) =>

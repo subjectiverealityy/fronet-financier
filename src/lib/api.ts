@@ -9,6 +9,7 @@ import type {
   Offer,
   Commitment,
   CommitmentPayload,
+  InvestorDashboard,
   Location,
   PayoutRequest,
   HealthCheckResponse,
@@ -312,6 +313,11 @@ export const getTransactions = ({ locationId, month, year, page = 1, limit = 20 
 }
 
 // Marketplace 
+
+// Investor dashboard
+
+export const getInvestorDashboard = () =>
+  apiFetch<InvestorDashboard>('/api/v1/financing/dashboard/me/')
 
 export const getOffers = () => apiFetch<Offer[]>('/api/v1/financing/offers/')
 

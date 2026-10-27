@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Card, CardHeader, Dot, StatusBadge, ViewAllFooter } from '@/components/ui'
-import { formatNaira, formatNairaFull, formatGB } from '@/lib/utils'
+import { formatNaira, formatNairaFull, formatGB, formatMoney } from '@/lib/utils'
+import { useInvestorDashboard } from '@/hooks/useInvestorDashboard'
+import type { InvestorPortfolio } from '@/types'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/authStore'
@@ -8,14 +10,33 @@ import { getMyReferrals } from '@/lib/api'
 
 // ─── Revenue Tab ─────────────────────────────────────────────────────────────
 
-const INVESTMENT_METRICS = [
-  { label: 'Initial investment', value: formatNaira(2500000) },
-  { label: 'Net income', value: formatNaira(326400) },
-  { label: 'Earnings to date', value: formatNaira(489200) },
-  { label: 'Net % yield', value: '13.1%' },
-  { label: 'Projected annualized yield', value: '15.8%' },
-  { label: '3-year projected return', value: formatNaira(1180000) },
-]
+// PLACEHOLDER: the investor dashboard endpoint has no income, yield or projection
+// figures yet. Replace these once the backend provides them.
+const PLACEHOLDER_METRICS = {
+  netIncome: formatNaira(326400),
+  netYield: '13.1%',
+  projectedYield: '15.8%',
+  projectedReturn3y: formatNaira(1180000),
+}
+
+// Real figures from GET /financing/dashboard/me/ where they exist; '—' while loading or unavailable.
+function investmentMetrics(portfolio?: InvestorPortfolio) {
+  const money = (amount: number) => (portfolio ? formatMoney(amount, portfolio.currency) : '—')
+  const p = portfolio
+  return [
+    { label: 'Initial investment', value: money(Number(p?.confirmed_investment_amount)) },
+    { label: 'Net income', value: PLACEHOLDER_METRICS.netIncome },
+    { label: 'Earnings to date', value: money(Number(p?.distribution_paid) + Number(p?.distribution_available)) },
+    { label: 'Net % yield', value: PLACEHOLDER_METRICS.netYield },
+    { label: 'Projected annualized yield', value: PLACEHOLDER_METRICS.projectedYield },
+    { label: '3-year projected return', value: PLACEHOLDER_METRICS.projectedReturn3y },
+    // Backend values the dashboard didn't show before.
+    { label: 'Pending payment verification', value: money(Number(p?.pending_commitment_amount)) },
+    { label: 'Confirmed investments', value: p ? String(p.confirmed_investment_count) : '—' },
+    { label: 'Paid out to you', value: money(Number(p?.distribution_paid)) },
+    { label: 'Ledger balance', value: money(Number(p?.ledger_balance)) },
+  ]
+}
 
 const EARNINGS_HISTORY = [
   { label: 'Last 30 days', value: formatNaira(128000) },
@@ -66,6 +87,8 @@ const INVESTMENT_PERFORMANCE_ROWS = [
 
 export function RevenueTab() {
   const { selectedView } = useDashboardStore()
+  const { data: investorDashboard, isError: portfolioError } = useInvestorDashboard()
+  const metrics = investmentMetrics(investorDashboard?.portfolio)
   const projectedTotal = 540000
   const actualTotal = 510000
   const variance = actualTotal - projectedTotal
@@ -119,8 +142,13 @@ export function RevenueTab() {
         <CardHeader>
           <p className="card-title">Investment summary</p>
         </CardHeader>
+        {portfolioError && (
+          <p role="alert" className="px-4 pt-3 text-xs text-text-tertiary">
+            We couldn't load your portfolio right now.
+          </p>
+        )}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 p-4">
-          {INVESTMENT_METRICS.map((metric) => (
+          {metrics.map((metric) => (
             <div key={metric.label} className="rounded-card border border-border bg-surface-2/60 p-3">
               <p className="text-[10px] uppercase tracking-wider text-text-tertiary">{metric.label}</p>
               <p className="mt-1 text-base font-semibold text-text-primary">{metric.value}</p>

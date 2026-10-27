@@ -5,7 +5,8 @@ import {
   trackDashboardCustomRangeStart,
   trackDashboardPeriodChanged,
 } from '@/lib/ga'
-import { getMonthName, formatNaira } from '@/lib/utils'
+import { getMonthName, formatNaira, formatMoney } from '@/lib/utils'
+import { useInvestorDashboard } from '@/hooks/useInvestorDashboard'
 
 const RANGE_OPTIONS = [
   { id: '7d', label: 'Last 7 days' },
@@ -87,7 +88,8 @@ export default PeriodSelector
 
 // ─── KPIStrip ────────────────────────────────────────────────────────────────
 
-// Placeholder data — swap each value with useQuery(getKPIs(...)) once API is live
+// Placeholder data for everything the investor dashboard endpoint doesn't cover:
+// per-location earnings and the network revenue figures in the KPI grid.
 export const MOCK_KPIS = {
   financierEarnings: 112860,
   financierSharePct: 40,
@@ -106,6 +108,12 @@ export const MOCK_KPIS = {
 export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
   const { selectedView, selectedMonth, selectedYear, selectedRange } = useDashboardStore()
   const kpis = MOCK_KPIS
+  const portfolio = useInvestorDashboard().data?.portfolio
+  // Earnings = distributions already paid + distributions available to pay out.
+  const totalEarnings = portfolio
+    ? formatMoney(Number(portfolio.distribution_paid) + Number(portfolio.distribution_available), portfolio.currency)
+    : '—'
+  const payoutBalance = portfolio ? formatMoney(portfolio.distribution_available, portfolio.currency) : '—'
   const rangeLabel = selectedRange === 'custom' ? 'custom range' : RANGE_OPTIONS.find((item) => item.id === selectedRange)?.label ?? 'selected range'
 
   return (
@@ -116,7 +124,10 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
           <p className="text-[10px] text-brand/60 uppercase tracking-wider mb-1">
             {selectedView === 'all' ? 'Total earnings' : 'Your earnings'}
           </p>
-          <p className="text-2xl font-semibold text-brand">{formatNaira(kpis.financierEarnings)}</p>
+          {/* The backend only has portfolio-wide totals, so single locations stay on placeholder figures. */}
+          <p className="text-2xl font-semibold text-brand">
+            {selectedView === 'all' ? totalEarnings : formatNaira(kpis.financierEarnings)}
+          </p>
           <p className="text-[11px] text-brand/50 mt-0.5">
             {selectedView === 'all'
               ? `Across all your deployments`
@@ -130,14 +141,16 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
         <div className="bg-surface-2 border border-border rounded-card p-4 flex flex-col flex-1  justify-between gap-3 md:flex-1 md:items-start md:justify-center md:gap-2">
           <div>
             <p className="text-xs text-text-tertiary mb-1">Available for payout</p>
-            <p className="text-lg font-medium text-text-primary">{formatNaira(kpis.payoutBalance)}</p>
+            <p className="text-lg font-medium text-text-primary">{payoutBalance}</p>
           </div>
+          {/* The API guide says not to implement payouts until the backend's payout
+              workflow is live, so the mock payout flow stays switched off for now. */}
           <button
             onClick={onRequestPayout}
-            disabled={kpis.payoutBalance <= 0 || kpis.payoutStatus === 'pending'}
+            disabled
             className="btn-brand text-xs disabled:opacity-40 disabled:cursor-default md:w-full md:text-center"
           >
-            {kpis.payoutStatus === 'pending' ? 'Payout requested →' : 'Request payout →'}
+            Payouts coming soon
           </button>
         </div>
       </div>
