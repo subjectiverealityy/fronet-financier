@@ -1,25 +1,68 @@
 import { useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/authStore'
 import { Card } from '@/components/ui'
-import { formatNaira } from '@/lib/utils'
+import { getOffers } from '@/lib/api'
 import { trackMarketplaceKycBannerClicked, trackOfferClicked } from '@/lib/ga'
 import type { Offer, DeploymentStage } from '@/types'
 
-const MOCK_OFFERS: Offer[] = [
-  { id: '1', name: 'Greenfield Hostel', institution: 'University of Ilorin', state: 'Kwara State', rooms: 120, costOfInstall: 800000, projectedReturns: 40, fundingRaised: 1600000, fundingTarget: 2400000, stage: 'invested', fullyFunded: false, gps: '' },
-  { id: '2', name: 'Lekki Student Lodge', institution: 'University of Lagos', state: 'Lagos State', rooms: 80, costOfInstall: 600000, projectedReturns: 38, fundingRaised: 1400000, fundingTarget: 1800000, stage: 'procured', fullyFunded: false, gps: '' },
-  { id: '3', name: 'Capitol View Hostel', institution: 'University of Abuja', state: 'FCT', rooms: 200, costOfInstall: 1200000, projectedReturns: 42, fundingRaised: 3600000, fundingTarget: 3600000, stage: 'paid', fullyFunded: true, gps: '' },
-]
+// PLACEHOLDER: offers from the backend have no rooms, install cost, deployment
+// stage or GPS link yet. Replace these once the backend adds them.
+const PLACEHOLDER = {
+  rooms: '—',
+  costOfInstall: '—',
+  stage: 'paid' as DeploymentStage,
+  gps: '',
+}
 
 const STAGES: DeploymentStage[] = ['paid', 'procured', 'invested', 'live']
 const STAGE_LABELS: Record<DeploymentStage, string> = {
   paid: 'Paid', procured: 'Procured', invested: 'Invested', live: 'Live',
 }
 
+// Backend amounts are decimal strings in the offer's own currency.
+function formatMoney(amount: string | number, currency: string) {
+  try {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })
+      .format(Number(amount))
+      .replace('NGN', '₦')
+      .trim()
+  } catch {
+    // Unknown currency code: show it plainly rather than crash the card.
+    return `${currency} ${amount}`
+  }
+}
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })
+
+function fundingWindow(offer: Offer): string | null {
+  const now = Date.now()
+  if (offer.funding_opens_at && new Date(offer.funding_opens_at).getTime() > now) {
+    return `Opens ${formatDate(offer.funding_opens_at)}`
+  }
+  if (offer.funding_closes_at) {
+    const closed = new Date(offer.funding_closes_at).getTime() <= now
+    return `${closed ? 'Closed' : 'Closes'} ${formatDate(offer.funding_closes_at)}`
+  }
+  return null
+}
+
 export default function Marketplace() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const kycDone = user?.kycStatus === 'verified'
+
+  // Public list, the same for every user, so no user id in the key.
+  const { data: offers, isLoading, isError } = useQuery({
+    queryKey: ['offers'],
+    queryFn: getOffers,
+  })
 
   return (
     <div className="min-h-dvh bg-surface-base flex flex-col max-w-md md:max-w-none mx-auto w-full">
@@ -43,12 +86,26 @@ export default function Marketplace() {
           navigate('/profile')
         }} />}
 
+        {isLoading && <p className="text-sm text-text-tertiary">Loading offers…</p>}
+
+        {isError && (
+          <p role="alert" className="text-sm text-danger">
+            We couldn't load offers. Please try again later.
+          </p>
+        )}
+
+        {offers && offers.length === 0 && (
+          <p className="text-sm text-text-tertiary">No offers are open right now. Check back soon.</p>
+        )}
+
         {/* Offer cards — 1 col mobile, 3 cols desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {MOCK_OFFERS.map((offer) => (
-            <OfferCard key={offer.id} offer={offer} kycDone={kycDone} />
-          ))}
-        </div>
+        {offers && offers.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {offers.map((offer) => (
+              <OfferCard key={offer.id} offer={offer} kycDone={kycDone} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -83,36 +140,79 @@ function KYCBanner({ onComplete }: { onComplete: () => void }) {
   )
 }
 
+function StatRow({ stats }: { stats: { label: string; value: string }[] }) {
+  return (
+    <div className="grid grid-cols-3 border border-border rounded-lg overflow-hidden">
+      {stats.map((s, i) => (
+        <div key={s.label} className={['px-2.5 py-2 min-w-0', i < 2 ? 'border-r border-border' : ''].join(' ')}>
+          <p className="text-[10px] text-text-tertiary mb-1">{s.label}</p>
+          <p className="text-sm font-medium text-text-primary truncate" title={s.value}>{s.value}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function OfferCard({ offer, kycDone }: { offer: Offer; kycDone: boolean }) {
-  const currentStageIndex = STAGES.indexOf(offer.stage)
+  const currentStageIndex = STAGES.indexOf(PLACEHOLDER.stage)
+  const raised = offer.units_sold * Number(offer.unit_price)
+  const fullyFunded = offer.available_units === 0
+  const fundingDates = fundingWindow(offer)
 
   const handleOfferClick = () => {
-    trackOfferClicked(offer.id)
+    trackOfferClicked(String(offer.id))
   }
 
   return (
     <Card>
       {/* Image placeholder */}
-      <div className="w-full h-16 bg-surface-2 border-b border-border flex items-center justify-center">
-        <p className="text-xs text-text-tertiary">{offer.state} · {offer.institution}</p>
+      <div className="w-full h-16 bg-surface-2 border-b border-border flex items-center justify-center px-4">
+        <p className="text-xs text-text-tertiary truncate">{offer.location} · {offer.asset_type}</p>
       </div>
 
       {/* Body */}
       <div className="px-4 py-3 border-b border-border">
-        <p className="text-base font-medium text-text-primary mb-0.5">{offer.name}</p>
-        <p className="text-xs text-text-tertiary mb-3">{offer.institution}, {offer.state} <a href={offer.gps}className="text-brand">(GPS Location)</a></p>
-        <div className="grid grid-cols-3 border border-border rounded-lg overflow-hidden">
-          {[
-            { label: 'Rooms', value: offer.rooms },
-            { label: 'Cost of install', value: formatNaira(offer.costOfInstall) },
-            { label: 'Projected returns', value: `${offer.projectedReturns}%` },
-          ].map((s, i) => (
-            <div key={s.label} className={['px-2.5 py-2', i < 2 ? 'border-r border-border' : ''].join(' ')}>
-              <p className="text-[10px] text-text-tertiary mb-1">{s.label}</p>
-              <p className="text-sm font-medium text-text-primary">{s.value}</p>
-            </div>
-          ))}
+        <p className="text-base font-medium text-text-primary mb-0.5">{offer.title}</p>
+        <p className="text-xs text-text-tertiary mb-2">
+          {offer.location}{' '}
+          {PLACEHOLDER.gps ? (
+            <a href={PLACEHOLDER.gps} target="_blank" rel="noreferrer" className="text-brand">(GPS Location)</a>
+          ) : (
+            <span title="Location link coming soon">(GPS Location)</span>
+          )}
+        </p>
+        {offer.summary && (
+          <p className="text-xs text-text-secondary mb-3 leading-relaxed">{offer.summary}</p>
+        )}
+
+        <div className="flex flex-col gap-2">
+          <StatRow
+            stats={[
+              { label: 'Rooms', value: PLACEHOLDER.rooms },
+              { label: 'Cost of install', value: PLACEHOLDER.costOfInstall },
+              { label: 'Projected returns', value: offer.target_return_note || '—' },
+            ]}
+          />
+          <StatRow
+            stats={[
+              { label: 'Unit price', value: formatMoney(offer.unit_price, offer.currency) },
+              { label: 'Min. investment', value: formatMoney(offer.minimum_investment, offer.currency) },
+              { label: 'Units left', value: `${offer.available_units} / ${offer.total_units}` },
+            ]}
+          />
         </div>
+
+        {(fundingDates || offer.risk_note || offer.terms_url) && (
+          <div className="mt-3 flex flex-col gap-1 text-xs text-text-tertiary">
+            {fundingDates && <p>{fundingDates}</p>}
+            {offer.risk_note && <p>Risk: {offer.risk_note}</p>}
+            {offer.terms_url && (
+              <a href={offer.terms_url} target="_blank" rel="noreferrer" className="text-brand w-fit">
+                View terms ↗
+              </a>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Progress tracker */}
@@ -156,11 +256,13 @@ function OfferCard({ offer, kycDone }: { offer: Offer; kycDone: boolean }) {
         <div>
           <p className="text-xs text-text-tertiary">Funding</p>
           <p className="text-sm font-medium text-text-primary">
-            {formatNaira(offer.fundingRaised)} <span className="text-text-tertiary font-normal">/ {formatNaira(offer.fundingTarget)}</span>
+            {formatMoney(raised, offer.currency)} <span className="text-text-tertiary font-normal">/ {formatMoney(offer.target_amount, offer.currency)}</span>
           </p>
         </div>
-        {offer.fullyFunded ? (
+        {fullyFunded ? (
           <button disabled className="btn-ghost opacity-50 cursor-default text-xs">Fully funded</button>
+        ) : !offer.is_open ? (
+          <button disabled className="btn-ghost opacity-50 cursor-default text-xs">Not open</button>
         ) : !kycDone ? (
           <button onClick={handleOfferClick} className="btn-brand text-xs">Fund now</button>
         ) : (

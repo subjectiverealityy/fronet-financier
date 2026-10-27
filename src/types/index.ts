@@ -232,18 +232,27 @@ export interface Transaction {
 export type DeploymentStage = 'paid' | 'procured' | 'invested' | 'live'
 
 export interface Offer {
-  id: string
-  name: string
-  institution: string
-  state: string
-  rooms: number
-  costOfInstall: number
-  projectedReturns: number // percentage
-  fundingRaised: number
-  fundingTarget: number
-  stage: DeploymentStage
-  fullyFunded: boolean
-  gps: string
+  id: number
+  title: string
+  slug: string // used for the offer detail and commitment endpoints
+  summary: string
+  location: string 
+  asset_type: string
+  currency: string
+  target_amount: string
+  minimum_investment: string
+  unit_price: string
+  total_units: number
+  units_sold: number
+  available_units: number
+  funding_amount: string
+  target_return_note: string // free text, may be empty
+  risk_note: string
+  terms_url: string
+  funding_opens_at: string | null
+  funding_closes_at: string | null
+  status: string // only 'published' offers are listed
+  is_open: boolean
 }
 
 // Utility 

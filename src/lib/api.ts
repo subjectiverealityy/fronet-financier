@@ -311,7 +311,7 @@ export const getTransactions = ({ locationId, month, year, page = 1, limit = 20 
 
 // Marketplace 
 
-export const getOffers = () => apiFetch<Offer[]>('/marketplace/offers')
+export const getOffers = () => apiFetch<Offer[]>('/api/v1/financing/offers/')
 
 // KYC
 
