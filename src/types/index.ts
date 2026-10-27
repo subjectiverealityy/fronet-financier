@@ -255,7 +255,25 @@ export interface Offer {
   is_open: boolean
 }
 
-// Utility 
+export interface CommitmentPayload {
+  units: number // the backend works out the amount from unit_price; never send an amount
+  payment_reference?: string
+}
+
+// A pending promise to invest. Not a payment, investment or ownership position.
+export interface Commitment {
+  id: number
+  offer: Pick<Offer, 'id' | 'title' | 'slug'>
+  currency: string
+  unit_price: string
+  units: number
+  amount: string
+  status: string // 'pending' until payment is verified
+  payment_reference: string
+  confirmed_at: string | null
+}
+
+// Utility
 
 export type DashboardView = 'all' | string // 'all' or a location id
 export type DashboardTab = 'revenue' | 'transactions' | 'network' | 'deployments' | 'referrals'

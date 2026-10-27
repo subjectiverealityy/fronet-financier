@@ -7,6 +7,8 @@ import type {
   APLocation,
   Transaction,
   Offer,
+  Commitment,
+  CommitmentPayload,
   Location,
   PayoutRequest,
   HealthCheckResponse,
@@ -312,6 +314,17 @@ export const getTransactions = ({ locationId, month, year, page = 1, limit = 20 
 // Marketplace 
 
 export const getOffers = () => apiFetch<Offer[]>('/api/v1/financing/offers/')
+
+// 404 when the offer is missing, draft, closed or archived.
+export const getOffer = (slug: string) =>
+  apiFetch<Offer>(`/api/v1/financing/offers/${encodeURIComponent(slug)}/`)
+
+// Creates a pending commitment, not a payment. Requires sign-in.
+export const createCommitment = (slug: string, payload: CommitmentPayload) =>
+  apiFetch<Commitment>(`/api/v1/financing/offers/${encodeURIComponent(slug)}/commitments/`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
 
 // KYC
 

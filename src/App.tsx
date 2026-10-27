@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import DashboardPage from '@/pages/DashboardPage'
 import MarketplacePage from '@/pages/MarketplacePage'
+import OfferDetailPage from '@/pages/OfferDetailPage'
 import SignupPage from '@/pages/SignupPage'
 import LoginPage from '@/pages/LoginPage'
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
@@ -68,6 +69,7 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/marketplace" element={<MarketplacePage />} />
+          <Route path="/marketplace/:slug" element={<OfferDetailPage />} />
           <Route path="/kyc" element={<KYCPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
