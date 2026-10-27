@@ -7,6 +7,8 @@ import {
 } from '@/lib/ga'
 import { getMonthName, formatNaira, formatMoney } from '@/lib/utils'
 import { useInvestorDashboard } from '@/hooks/useInvestorDashboard'
+import { useQuery } from '@tanstack/react-query'
+import { getOffers } from '@/lib/api'
 
 const RANGE_OPTIONS = [
   { id: '7d', label: 'Last 7 days' },
@@ -174,6 +176,10 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
 // ─── MarketplaceBanner ───────────────────────────────────────────────────────
 
 export function MarketplaceBanner({ onClick }: { onClick: () => void }) {
+  // Same query key as the marketplace page, so both share one cached request.
+  const { data: offers } = useQuery({ queryKey: ['offers'], queryFn: getOffers })
+  const activeCount = offers?.filter((o) => o.is_open && o.available_units > 0).length
+
   return (
     <button
       onClick={onClick}
@@ -182,7 +188,14 @@ export function MarketplaceBanner({ onClick }: { onClick: () => void }) {
       <div>
         <p className="text-[10px] text-brand/60 uppercase tracking-wider mb-0.5">FroNet Marketplace</p>
         <p className="text-sm font-medium text-text-primary">Browse Active Offers</p>
-        <p className="text-xs text-text-tertiary mt-0.5">4 active offers available</p>
+        {/* Hidden while loading or if offers can't be loaded, rather than showing a wrong count. */}
+        {activeCount !== undefined && (
+          <p className="text-xs text-text-tertiary mt-0.5">
+            {activeCount === 0
+              ? 'No active offers right now'
+              : `${activeCount} active offer${activeCount === 1 ? '' : 's'} available`}
+          </p>
+        )}
       </div>
       <span className="w-8 h-8 bg-brand/15 rounded-full flex items-center justify-center flex-shrink-0">
         <svg className="w-4 h-4 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
