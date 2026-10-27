@@ -9,6 +9,7 @@ import { getMonthName, formatNaira, formatMoney } from '@/lib/utils'
 import { useInvestorDashboard } from '@/hooks/useInvestorDashboard'
 import { useQuery } from '@tanstack/react-query'
 import { getOffers } from '@/lib/api'
+import { MOCK_KPIS } from './mockKpis'
 
 const RANGE_OPTIONS = [
   { id: '7d', label: 'Last 7 days' },
@@ -89,23 +90,6 @@ export function PeriodSelector() {
 export default PeriodSelector
 
 // ─── KPIStrip ────────────────────────────────────────────────────────────────
-
-// Placeholder data for everything the investor dashboard endpoint doesn't cover:
-// per-location earnings and the network revenue figures in the KPI grid.
-export const MOCK_KPIS = {
-  financierEarnings: 112860,
-  financierSharePct: 40,
-  myStakePct: 15,
-  grossRevenue: 282149,
-  netRevenue: 275916,
-  successfulTxns: 101,
-  totalTxns: 118,
-  wifiUsers: 48,
-  failedTxns: 17,
-  paystackFees: 6233,
-  payoutBalance: 173790,
-  payoutStatus: 'none' as 'none' | 'pending',
-}
 
 export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
   const { selectedView, selectedMonth, selectedYear, selectedRange } = useDashboardStore()

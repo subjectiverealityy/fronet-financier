@@ -4,7 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Card } from '@/components/ui'
 import { getOffer, createCommitment, ApiError } from '@/lib/api'
 import type { Commitment, Offer } from '@/types'
-import { OfferBody, DeploymentTracker, FundingTotal, formatMoney } from './offerShared'
+import { formatMoney } from '@/lib/utils'
+import { OfferBody, DeploymentTracker, FundingTotal } from './offerShared'
 
 export default function OfferDetail() {
   const navigate = useNavigate()

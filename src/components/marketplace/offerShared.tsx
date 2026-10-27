@@ -2,11 +2,9 @@
 import type { Offer, DeploymentStage } from '@/types'
 import { formatMoney } from '@/lib/utils'
 
-export { formatMoney }
-
 // PLACEHOLDER: offers from the backend have no rooms, install cost, deployment
 // stage or GPS link yet. Replace these once the backend adds them.
-export const PLACEHOLDER = {
+const PLACEHOLDER = {
   rooms: '—',
   costOfInstall: '—',
   stage: 'paid' as DeploymentStage,

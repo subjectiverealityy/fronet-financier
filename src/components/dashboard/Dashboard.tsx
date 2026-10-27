@@ -13,7 +13,8 @@ import {
 import LocationDropdown from './LocationDropdown'
 import PeriodSelector from './PeriodSelector'
 import { RevenueTab, TransactionsTab, NetworkTab, DeploymentsTab, ReferralsTab } from './tabs/RevenueTab'
-import { KPIStrip, MarketplaceBanner, MOCK_KPIS } from './PeriodSelector'
+import { KPIStrip, MarketplaceBanner } from './PeriodSelector'
+import { MOCK_KPIS } from './mockKpis'
 import PayoutModal from './PayoutModal'
 import type { DashboardTab } from '@/types'
 
