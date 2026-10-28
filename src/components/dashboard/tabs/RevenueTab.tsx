@@ -25,16 +25,18 @@ function investmentMetrics(portfolio?: InvestorPortfolio) {
   const p = portfolio
   return [
     { label: 'Initial investment', value: money(Number(p?.confirmed_investment_amount)) },
+    { label: 'Confirmed investments', value: p ? String(p.confirmed_investment_count) : '—' },
     { label: 'Net income', value: PLACEHOLDER_METRICS.netIncome },
     { label: 'Earnings to date', value: money(Number(p?.distribution_paid) + Number(p?.distribution_available)) },
     { label: 'Net % yield', value: PLACEHOLDER_METRICS.netYield },
     { label: 'Projected annualized yield', value: PLACEHOLDER_METRICS.projectedYield },
     { label: '3-year projected return', value: PLACEHOLDER_METRICS.projectedReturn3y },
     // Backend values the dashboard didn't show before.
-    { label: 'Pending payment verification', value: money(Number(p?.pending_commitment_amount)) },
-    { label: 'Confirmed investments', value: p ? String(p.confirmed_investment_count) : '—' },
+    // Hidden for now: total of commitments not yet confirmed by payment.
+    // { label: 'Pending payment verification', value: money(Number(p?.pending_commitment_amount)) },
     { label: 'Paid out to you', value: money(Number(p?.distribution_paid)) },
-    { label: 'Ledger balance', value: money(Number(p?.ledger_balance)) },
+    // Hidden for now: waiting for the backend to explain what ledger_balance means.
+    // { label: 'Ledger balance', value: money(Number(p?.ledger_balance)) },
   ]
 }
 
@@ -89,10 +91,10 @@ export function RevenueTab() {
   const { selectedView } = useDashboardStore()
   const { data: investorDashboard, isError: portfolioError } = useInvestorDashboard()
   const metrics = investmentMetrics(investorDashboard?.portfolio)
-  const projectedTotal = 540000
-  const actualTotal = 510000
-  const variance = actualTotal - projectedTotal
-  const variancePct = Math.round((variance / projectedTotal) * 100)
+  // const projectedTotal = 540000
+  // const actualTotal = 510000
+  // const variance = actualTotal - projectedTotal
+  // const variancePct = Math.round((variance / projectedTotal) * 100)
   const cumulativeAmount = INVESTMENT_PERFORMANCE_ROWS.reduce((sum, row) => sum + row.amt, 0)
 
   return (
@@ -157,7 +159,9 @@ export function RevenueTab() {
         </div>
       </Card>
 
-      <Card>
+      {/* Actual vs projected returns: commented out for now. To restore, uncomment this
+          card and the projectedTotal / actualTotal / variance lines at the top of RevenueTab. */}
+      {/* <Card>
         <CardHeader>
           <p className="card-title">Actual vs projected returns</p>
           <p className="text-xs text-text-tertiary">Variance {formatNaira(Math.abs(variance))} / {variancePct}%</p>
@@ -178,7 +182,7 @@ export function RevenueTab() {
             </p>
           </div>
         </div>
-      </Card>
+      </Card> */}
 
       <Card>
         <CardHeader>
