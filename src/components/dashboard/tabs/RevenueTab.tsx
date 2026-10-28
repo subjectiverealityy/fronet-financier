@@ -24,7 +24,7 @@ function investmentMetrics(portfolio?: InvestorPortfolio) {
   const money = (amount: number) => (portfolio ? formatMoney(amount, portfolio.currency) : '—')
   const p = portfolio
   return [
-    { label: 'Initial investment', value: money(Number(p?.confirmed_investment_amount)) },
+    { label: 'Initial investment amount', value: money(Number(p?.confirmed_investment_amount)) },
     { label: 'Confirmed investments', value: p ? String(p.confirmed_investment_count) : '—' },
     { label: 'Net income', value: PLACEHOLDER_METRICS.netIncome },
     { label: 'Earnings to date', value: money(Number(p?.distribution_paid) + Number(p?.distribution_available)) },
@@ -470,13 +470,14 @@ const GATEWAY = [
   { label: 'Wrong amount', description: 'Wrong amount - check reconciliation', count: 1, pct: 0.8, color: '#555' },
 ]
 
-const AP_LOCATIONS = [
-  { name: 'Bims 4', downloadGB: 392.42, uploadGB: 36.33, totalGB: 428.75, activeClients: 4 },
-  { name: 'Bims 2', downloadGB: 257.62, uploadGB: 34.36, totalGB: 291.97, activeClients: 1 },
-  { name: 'Bims 1', downloadGB: 250.01, uploadGB: 28.16, totalGB: 278.17, activeClients: 2 },
-  { name: 'Bims 3', downloadGB: 182.87, uploadGB: 31.88, totalGB: 214.75, activeClients: 4 },
-  { name: '2nd Floor 1', downloadGB: 144.79, uploadGB: 20.34, totalGB: 165.13, activeClients: 1 },
-]
+// Used by the hidden "Breakdown by location" card in NetworkTab.
+// const AP_LOCATIONS = [
+//   { name: 'Bims 4', downloadGB: 392.42, uploadGB: 36.33, totalGB: 428.75, activeClients: 4 },
+//   { name: 'Bims 2', downloadGB: 257.62, uploadGB: 34.36, totalGB: 291.97, activeClients: 1 },
+//   { name: 'Bims 1', downloadGB: 250.01, uploadGB: 28.16, totalGB: 278.17, activeClients: 2 },
+//   { name: 'Bims 3', downloadGB: 182.87, uploadGB: 31.88, totalGB: 214.75, activeClients: 4 },
+//   { name: '2nd Floor 1', downloadGB: 144.79, uploadGB: 20.34, totalGB: 165.13, activeClients: 1 },
+// ]
 
 const formatReferralDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -611,25 +612,6 @@ export function NetworkTab() {
   return (
     <>
       <div className="flex flex-col md:flex-row gap-3">
-        <Card className="md:flex-1">
-          <CardHeader><p className="card-title">Gateway response breakdown</p></CardHeader>
-          {GATEWAY.map((g) => (
-            <div key={g.label} className="row-item">
-              <div className="flex items-center gap-2">
-                <Dot color={g.color} />
-                <div>
-                  <p className="text-sm text-text-primary">{g.label}</p>
-                  <p className="text-xs text-text-tertiary mt-0.5">{g.description}</p>
-                </div>
-              </div>
-              <div className="text-right flex-shrink-0 ml-2">
-                <p className="text-sm font-medium text-text-primary">{g.count}</p>
-                <p className="text-xs text-text-tertiary mt-0.5">{g.pct}%</p>
-              </div>
-            </div>
-          ))}
-        </Card>
-
         <Card className="md:flex-1 h-fit">
           <CardHeader><p className="card-title">Network usage & access points</p></CardHeader>
           <div className="grid grid-cols-2">
@@ -655,9 +637,30 @@ export function NetworkTab() {
             ))}
           </div>
         </Card>
+
+        <Card className="md:flex-1">
+          <CardHeader><p className="card-title">Gateway response breakdown</p></CardHeader>
+          {GATEWAY.map((g) => (
+            <div key={g.label} className="row-item">
+              <div className="flex items-center gap-2">
+                <Dot color={g.color} />
+                <div>
+                  <p className="text-sm text-text-primary">{g.label}</p>
+                  <p className="text-xs text-text-tertiary mt-0.5">{g.description}</p>
+                </div>
+              </div>
+              <div className="text-right flex-shrink-0 ml-2">
+                <p className="text-sm font-medium text-text-primary">{g.count}</p>
+                <p className="text-xs text-text-tertiary mt-0.5">{g.pct}%</p>
+              </div>
+            </div>
+          ))}
+        </Card>
       </div>
 
-      <Card>
+      {/* Breakdown by location: hidden for now. To restore, uncomment this card and
+          the AP_LOCATIONS data near the top of the Network tab section. */}
+      {/* <Card>
         <CardHeader>
           <p className="card-title">Breakdown by location</p>
           <button className="text-xs text-text-tertiary">View all →</button>
@@ -702,7 +705,7 @@ export function NetworkTab() {
             </tbody>
           </table>
         </div>
-      </Card>
+      </Card> */}
     </>
   )
 }
