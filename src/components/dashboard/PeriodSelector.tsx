@@ -5,7 +5,7 @@ import {
   trackDashboardCustomRangeStart,
   trackDashboardPeriodChanged,
 } from '@/lib/ga'
-import { getMonthName, formatNaira, formatMoney } from '@/lib/utils'
+import { getMonthName, formatNaira, formatMoney, cn } from '@/lib/utils'
 import { useInvestorDashboard } from '@/hooks/useInvestorDashboard'
 import { useQuery } from '@tanstack/react-query'
 import { getOffers } from '@/lib/api'
@@ -91,7 +91,8 @@ export default PeriodSelector
 
 // ─── KPIStrip ────────────────────────────────────────────────────────────────
 
-export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
+// When restoring the payout card, add back its prop: onRequestPayout: () => void
+export function KPIStrip({ onBrowseOffers }: { onBrowseOffers: () => void }) {
   const { selectedView, selectedMonth, selectedYear } = useDashboardStore()
   const kpis = MOCK_KPIS
   const portfolio = useInvestorDashboard().data?.portfolio
@@ -99,7 +100,8 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
   const totalEarnings = portfolio
     ? formatMoney(Number(portfolio.distribution_paid) + Number(portfolio.distribution_available), portfolio.currency)
     : '—'
-  const payoutBalance = portfolio ? formatMoney(portfolio.distribution_available, portfolio.currency) : '—'
+  // Used by the payout card, which is commented out below.
+  // const payoutBalance = portfolio ? formatMoney(portfolio.distribution_available, portfolio.currency) : '—'
 
   return (
     <div className="flex flex-col gap-2">
@@ -125,14 +127,15 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
           )}
         </div>
 
-        {/* Payout balance + CTA */}
-        <div className="bg-surface-2 border border-border rounded-card p-4 flex flex-col flex-1  justify-between gap-3 md:flex-1 md:items-start md:justify-center md:gap-2">
+        {/* Payout balance + CTA: commented out for now. To restore, uncomment this block
+            and the payoutBalance line above. */}
+        {/* <div className="bg-surface-2 border border-border rounded-card p-4 flex flex-col flex-1  justify-between gap-3 md:flex-1 md:items-start md:justify-center md:gap-2">
           <div>
             <p className="text-xs text-text-tertiary mb-1">Available for payout</p>
             <p className="text-lg font-medium text-text-primary">{payoutBalance}</p>
           </div>
           {/* The API guide says not to implement payouts until the backend's payout
-              workflow is live, so the mock payout flow stays switched off for now. */}
+              workflow is live, so the mock payout flow stays switched off for now. *\/}
           <button
             onClick={onRequestPayout}
             disabled
@@ -140,20 +143,22 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
           >
             Payouts coming soon
           </button>
-        </div>
+        </div> */}
+
+        <MarketplaceBanner onClick={onBrowseOffers} className="flex-1" />
       </div>
 
       {/* KPI grid */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:flex-[2]">
         <KpiCard label="Gross revenue" value={formatNaira(kpis.grossRevenue)} />
         <KpiCard label="Net revenue" value={formatNaira(kpis.netRevenue)} />
+        <KpiCard label="Paystack fees" value={formatNaira(kpis.paystackFees)} />
+        <KpiCard label="WiFi users" value={kpis.wifiUsers} />
         <KpiCard
           label="Transactions"
           value={<>{kpis.successfulTxns} <span className="text-xs font-normal text-text-tertiary">/ {kpis.totalTxns}</span></>}
         />
-        <KpiCard label="WiFi users" value={kpis.wifiUsers} />
         <KpiCard label="Failed transactions" value={kpis.failedTxns} danger />
-        <KpiCard label="Paystack fees" value={formatNaira(kpis.paystackFees)} />
       </div>
     </div>
   )
@@ -161,7 +166,7 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
 
 // ─── MarketplaceBanner ───────────────────────────────────────────────────────
 
-export function MarketplaceBanner({ onClick }: { onClick: () => void }) {
+export function MarketplaceBanner({ onClick, className }: { onClick: () => void; className?: string }) {
   // Same query key as the marketplace page, so both share one cached request.
   const { data: offers } = useQuery({ queryKey: ['offers'], queryFn: getOffers })
   const activeCount = offers?.filter((o) => o.is_open && o.available_units > 0).length
@@ -169,7 +174,10 @@ export function MarketplaceBanner({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="w-full bg-brand/10 border border-brand/20 rounded-card px-4 py-3.5 flex items-center justify-between text-left active:scale-[0.98] transition-transform"
+      className={cn(
+        'w-full bg-brand/10 border border-brand/20 rounded-card px-4 py-3.5 flex items-center justify-between gap-2 text-left active:scale-[0.98] transition-transform',
+        className
+      )}
     >
       <div>
         <p className="text-[10px] text-brand/60 uppercase tracking-wider mb-0.5">FroNet Marketplace</p>

@@ -12,7 +12,7 @@ import {
 } from '@/lib/ga'
 import LocationDropdown from './LocationDropdown'
 import { RevenueTab, TransactionsTab, NetworkTab, DeploymentsTab, ReferralsTab } from './tabs/RevenueTab'
-import { KPIStrip, MarketplaceBanner } from './PeriodSelector'
+import { KPIStrip } from './PeriodSelector'
 import { MOCK_KPIS } from './mockKpis'
 import PayoutModal from './PayoutModal'
 import type { DashboardTab } from '@/types'
@@ -73,7 +73,14 @@ export default function Dashboard() {
 
       {/* KPI strip */}
       <div className="bg-surface-1 border-b border-border px-4 md:px-6 py-3 flex flex-col gap-2">
-        <KPIStrip onRequestPayout={() => setPayoutModalOpen(true)} />
+        {/* Payout card is commented out in KPIStrip; when restoring it, also pass:
+            onRequestPayout={() => setPayoutModalOpen(true)} */}
+        <KPIStrip
+          onBrowseOffers={() => {
+            trackMarketplaceBannerClicked()
+            navigate('/marketplace')
+          }}
+        />
       </div>
 
       {/* Tabs */}
@@ -93,11 +100,6 @@ export default function Dashboard() {
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-3 flex flex-col gap-3 safe-bottom">
-        <MarketplaceBanner onClick={() => {
-          trackMarketplaceBannerClicked()
-          navigate('/marketplace')
-        }} />
-
         {activeTab === 'revenue' && <RevenueTab />}
         {activeTab === 'deployments' && <DeploymentsTab />}
         {activeTab === 'transactions' && <TransactionsTab />}
