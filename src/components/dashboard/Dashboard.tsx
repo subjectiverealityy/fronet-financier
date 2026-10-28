@@ -19,9 +19,9 @@ import type { DashboardTab } from '@/types'
 
 const TABS: { id: DashboardTab; label: string }[] = [
   { id: 'revenue', label: 'Revenue' },
-  { id: 'deployments', label: 'Deployments' },
-  { id: 'transactions', label: 'Transactions' },
   { id: 'network', label: 'Network' },
+  { id: 'transactions', label: 'Transactions' },
+  { id: 'deployments', label: 'Deployments' },
   { id: 'referrals', label: 'Referrals' },
 ]
 
