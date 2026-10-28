@@ -6,6 +6,7 @@ import { getOffers } from '@/lib/api'
 import { trackMarketplaceKycBannerClicked, trackOfferClicked } from '@/lib/ga'
 import type { Offer } from '@/types'
 import { OfferBody, DeploymentTracker, FundingTotal } from './offerShared'
+import { SAMPLE_OFFERS, SHOW_SAMPLE_OFFERS } from './sampleOffers'
 
 export default function Marketplace() {
   const navigate = useNavigate()
@@ -13,10 +14,14 @@ export default function Marketplace() {
   const kycDone = user?.kycStatus === 'verified'
 
   // Public list, the same for every user, so no user id in the key.
-  const { data: offers, isLoading, isError } = useQuery({
+  const { data: realOffers, isLoading, isError } = useQuery({
     queryKey: ['offers'],
     queryFn: getOffers,
   })
+
+  // In development only, fall back to sample offers when the real list fails or is empty.
+  const showSamples = SHOW_SAMPLE_OFFERS && (isError || realOffers?.length === 0)
+  const offers = showSamples ? SAMPLE_OFFERS : realOffers
 
   return (
     <div className="min-h-dvh bg-surface-base flex flex-col max-w-md md:max-w-none mx-auto w-full">
@@ -42,7 +47,14 @@ export default function Marketplace() {
 
         {isLoading && <p className="text-sm text-text-tertiary">Loading offers…</p>}
 
-        {isError && (
+        {showSamples && (
+          <p className="text-xs text-warning bg-warning/10 border border-warning/30 rounded-card px-3 py-2">
+            Development preview: showing sample offers because real offers couldn't be loaded.
+            Production users won't see these.
+          </p>
+        )}
+
+        {isError && !showSamples && (
           <p role="alert" className="text-sm text-danger">
             We couldn't load offers. Please try again later.
           </p>

@@ -6,17 +6,23 @@ import { getOffer, createCommitment, ApiError } from '@/lib/api'
 import type { Commitment, Offer } from '@/types'
 import { formatMoney } from '@/lib/utils'
 import { OfferBody, DeploymentTracker, FundingTotal } from './offerShared'
+import { SAMPLE_OFFERS, SHOW_SAMPLE_OFFERS } from './sampleOffers'
 
 export default function OfferDetail() {
   const navigate = useNavigate()
   const { slug = '' } = useParams()
 
-  const { data: offer, isLoading, error } = useQuery({
+  const { data: realOffer, isLoading, error: loadError } = useQuery({
     queryKey: ['offer', slug],
     queryFn: () => getOffer(slug),
     // A 404 won't fix itself on retry.
     retry: (count, err) => !(err instanceof ApiError && err.status === 404) && count < 2,
   })
+
+  // In development only, show a sample offer when the real one can't be loaded.
+  const sampleOffer = SHOW_SAMPLE_OFFERS && loadError ? SAMPLE_OFFERS.find((o) => o.slug === slug) : undefined
+  const offer = realOffer ?? sampleOffer
+  const error = sampleOffer ? null : loadError
 
   const notFound = error instanceof ApiError && error.status === 404
 
@@ -39,6 +45,12 @@ export default function OfferDetail() {
 
       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-3 flex flex-col gap-3 safe-bottom md:max-w-2xl md:mx-auto md:w-full">
         {isLoading && <p className="text-sm text-text-tertiary">Loading offer…</p>}
+
+        {sampleOffer && (
+          <p className="text-xs text-warning bg-warning/10 border border-warning/30 rounded-card px-3 py-2">
+            Development preview: this is a sample offer. Production users won't see it.
+          </p>
+        )}
 
         {notFound && (
           <p role="alert" className="text-sm text-text-tertiary">
@@ -66,7 +78,7 @@ export default function OfferDetail() {
               </div>
             </Card>
 
-            <CommitmentForm offer={offer} />
+            <CommitmentForm offer={offer} isSample={!!sampleOffer} />
           </>
         )}
       </div>
@@ -74,7 +86,7 @@ export default function OfferDetail() {
   )
 }
 
-function CommitmentForm({ offer }: { offer: Offer }) {
+function CommitmentForm({ offer, isSample = false }: { offer: Offer; isSample?: boolean }) {
   const queryClient = useQueryClient()
 
   const unitPrice = Number(offer.unit_price)
@@ -186,10 +198,10 @@ function CommitmentForm({ offer }: { offer: Offer }) {
             setUnits(finalUnits)
             mutation.mutate(finalUnits)
           }}
-          disabled={mutation.isPending}
+          disabled={mutation.isPending || isSample}
           className="btn-brand w-full py-3 text-sm disabled:opacity-50"
         >
-          {mutation.isPending ? 'Submitting…' : 'Commit to fund'}
+          {isSample ? 'Commit to fund (disabled for sample offers)' : mutation.isPending ? 'Submitting…' : 'Commit to fund'}
         </button>
 
         <p className="text-[11px] text-text-tertiary leading-relaxed">
