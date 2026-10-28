@@ -11,7 +11,6 @@ import {
   trackPayoutInitiated,
 } from '@/lib/ga'
 import LocationDropdown from './LocationDropdown'
-import PeriodSelector from './PeriodSelector'
 import { RevenueTab, TransactionsTab, NetworkTab, DeploymentsTab, ReferralsTab } from './tabs/RevenueTab'
 import { KPIStrip, MarketplaceBanner } from './PeriodSelector'
 import { MOCK_KPIS } from './mockKpis'
@@ -66,7 +65,8 @@ export default function Dashboard() {
               onToggle={() => setDropdownOpen((o) => !o)}
               onClose={() => setDropdownOpen(false)}
             />
-            <PeriodSelector />
+            {/* Date range buttons (PeriodSelector) are hidden until the backend can filter
+                figures by date; render <PeriodSelector /> here again to bring them back. */}
           </div>
         </div>
       </div>

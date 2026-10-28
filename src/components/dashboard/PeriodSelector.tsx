@@ -92,7 +92,7 @@ export default PeriodSelector
 // ─── KPIStrip ────────────────────────────────────────────────────────────────
 
 export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
-  const { selectedView, selectedMonth, selectedYear, selectedRange } = useDashboardStore()
+  const { selectedView, selectedMonth, selectedYear } = useDashboardStore()
   const kpis = MOCK_KPIS
   const portfolio = useInvestorDashboard().data?.portfolio
   // Earnings = distributions already paid + distributions available to pay out.
@@ -100,7 +100,6 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
     ? formatMoney(Number(portfolio.distribution_paid) + Number(portfolio.distribution_available), portfolio.currency)
     : '—'
   const payoutBalance = portfolio ? formatMoney(portfolio.distribution_available, portfolio.currency) : '—'
-  const rangeLabel = selectedRange === 'custom' ? 'custom range' : RANGE_OPTIONS.find((item) => item.id === selectedRange)?.label ?? 'selected range'
 
   return (
     <div className="flex flex-col gap-2">
@@ -120,7 +119,10 @@ export function KPIStrip({ onRequestPayout }: { onRequestPayout: () => void }) {
               : `${kpis.myStakePct}% stake · ${kpis.financierSharePct}% of gross revenue`}
             {selectedView !== 'all' ? ` · ${getMonthName(selectedMonth)} ${selectedYear}` : ''}
           </p>
-          <p className="text-[10px] uppercase tracking-wider text-brand/50 mt-1">{rangeLabel}</p>
+          {/* Portfolio totals from the backend cover all time; single locations use placeholder data. */}
+          {selectedView === 'all' && (
+            <p className="text-[10px] uppercase tracking-wider text-brand/50 mt-1">All time</p>
+          )}
         </div>
 
         {/* Payout balance + CTA */}
