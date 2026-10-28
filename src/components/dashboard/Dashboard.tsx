@@ -5,13 +5,12 @@ import { useAuthStore } from '@/store/authStore'
 import { Chip } from '@/components/ui'
 import {
   trackDashboardTabClicked,
-  trackMarketplaceBannerClicked,
   trackProfileViewed,
   trackPayoutCompleted,
   trackPayoutInitiated,
 } from '@/lib/ga'
 import LocationDropdown from './LocationDropdown'
-import { RevenueTab, TransactionsTab, NetworkTab, DeploymentsTab, ReferralsTab } from './tabs/RevenueTab'
+import { RevenueTab, TransactionsTab, NetworkTab } from './tabs/RevenueTab'
 import { KPIStrip } from './PeriodSelector'
 import { MOCK_KPIS } from './mockKpis'
 import PayoutModal from './PayoutModal'
@@ -21,8 +20,6 @@ const TABS: { id: DashboardTab; label: string }[] = [
   { id: 'revenue', label: 'Revenue' },
   { id: 'network', label: 'Network' },
   { id: 'transactions', label: 'Transactions' },
-  { id: 'deployments', label: 'Deployments' },
-  { id: 'referrals', label: 'Referrals' },
 ]
 
 export default function Dashboard() {
@@ -75,12 +72,7 @@ export default function Dashboard() {
       <div className="bg-surface-1 border-b border-border px-4 md:px-6 py-3 flex flex-col gap-2">
         {/* Payout card is commented out in KPIStrip; when restoring it, also pass:
             onRequestPayout={() => setPayoutModalOpen(true)} */}
-        <KPIStrip
-          onBrowseOffers={() => {
-            trackMarketplaceBannerClicked()
-            navigate('/marketplace')
-          }}
-        />
+        <KPIStrip />
       </div>
 
       {/* Tabs */}
@@ -101,10 +93,8 @@ export default function Dashboard() {
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-3 flex flex-col gap-3 safe-bottom">
         {activeTab === 'revenue' && <RevenueTab />}
-        {activeTab === 'deployments' && <DeploymentsTab />}
         {activeTab === 'transactions' && <TransactionsTab />}
         {activeTab === 'network' && <NetworkTab />}
-        {activeTab === 'referrals' && <ReferralsTab />}
       </div>
 
       {/* Overlay to close dropdown */}

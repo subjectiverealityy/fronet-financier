@@ -249,6 +249,16 @@ export function RevenueTab() {
 
 export function DeploymentsTab() {
   const [activeMedia, setActiveMedia] = useState<{ deploymentTitle: string; items: string[]; index: number } | null>(null)
+  // Cards start closed; this holds the titles of the ones the user has opened.
+  const [openDeployments, setOpenDeployments] = useState<Set<string>>(new Set())
+
+  const toggleDeployment = (title: string) =>
+    setOpenDeployments((current) => {
+      const next = new Set(current)
+      if (next.has(title)) next.delete(title)
+      else next.add(title)
+      return next
+    })
 
   useEffect(() => {
     if (!activeMedia) return
@@ -284,70 +294,96 @@ export function DeploymentsTab() {
         <p className="text-xs text-text-tertiary">Visible proof of funded infrastructure</p>
       </CardHeader>
       <div className="p-4 space-y-3">
-        {DEPLOYMENTS.map((deployment) => (
-          <div key={deployment.title} className="rounded-card border border-border bg-surface-2/60 p-3">
-            <div>
-              <p className="text-sm font-semibold text-text-primary">{deployment.title}</p>
-              <p className="text-xs text-text-tertiary mt-1">{deployment.story}</p>
-            </div>
-
-            <div className="mt-3 flex items-center gap-2">
+        {DEPLOYMENTS.map((deployment, index) => {
+          const isOpen = openDeployments.has(deployment.title)
+          const detailsId = `deployment-details-${index}`
+          return (
+            <div key={deployment.title} className="rounded-card border border-border bg-surface-2/60">
               <button
                 type="button"
-                onClick={() => window.open(deployment.gps, '_blank', 'noopener,noreferrer')}
-                className="flex flex-1 items-center justify-center gap-2 rounded-card border border-border bg-surface-1/70 px-3 py-2 text-sm text-text-primary"
+                onClick={() => toggleDeployment(deployment.title)}
+                aria-expanded={isOpen}
+                aria-controls={detailsId}
+                className="w-full flex items-center justify-between gap-3 p-3 text-left"
               >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-text-primary">{deployment.title}</p>
+                  <p className="text-xs text-text-tertiary mt-0.5">
+                    Deployed {deployment.deploymentDate} · {deployment.users}
+                  </p>
+                </div>
+                <svg
+                  className={`h-4 w-4 flex-shrink-0 text-text-tertiary transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
-                View location
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveMedia({ deploymentTitle: deployment.title, items: deployment.media, index: 0 })}
-                className="flex flex-1 items-center justify-center gap-2 rounded-card border border-border bg-surface-1/70 px-3 py-2 text-sm text-text-primary"
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 7a2 2 0 012-2h4l2-2h4l2 2h4a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-                View media
-              </button>
-            </div>
 
-            <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-              <div className="rounded-card border border-border bg-surface-1/70 p-2">
-                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Revenue generated</p>
-                <p className="mt-1 font-medium text-text-primary">{deployment.revenue}</p>
-              </div>
-              <div className="rounded-card border border-border bg-surface-1/70 p-2">
-                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Investment deployed</p>
-                <p className="mt-1 font-medium text-text-primary">{deployment.investmentDeployed}</p>
-              </div>
-              <div className="rounded-card border border-border bg-surface-1/70 p-2">
-                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Deployment date</p>
-                <p className="mt-1 font-medium text-text-primary">{deployment.deploymentDate}</p>
-              </div>
-              <div className="rounded-card border border-border bg-surface-1/70 p-2">
-                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Users served</p>
-                <p className="mt-1 font-medium text-text-primary">{deployment.users}</p>
-              </div>
-              <div className="rounded-card border border-border bg-surface-1/70 p-2">
-                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Monthly revenue</p>
-                <p className="mt-1 font-medium text-text-primary">{deployment.revenue}</p>
-              </div>
-              <div className="rounded-card border border-border bg-surface-1/70 p-2">
-                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Current yield</p>
-                <p className="mt-1 font-medium text-text-primary">{deployment.yield}</p>
-              </div>
-              <div className="rounded-card border border-border bg-surface-1/70 p-2 col-span-2">
-                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Infrastructure funded</p>
-                <p className="mt-1 font-medium text-text-primary">{deployment.assets}</p>
-              </div>
+              {isOpen && (
+                <div id={detailsId} className="px-3 pb-3">
+                  <p className="text-xs text-text-tertiary">{deployment.story}</p>
+
+                  <div className="mt-3 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => window.open(deployment.gps, '_blank', 'noopener,noreferrer')}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-card border border-border bg-surface-1/70 px-3 py-2 text-sm text-text-primary"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      View location
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveMedia({ deploymentTitle: deployment.title, items: deployment.media, index: 0 })}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-card border border-border bg-surface-1/70 px-3 py-2 text-sm text-text-primary"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+                      </svg>
+                      View media
+                    </button>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                    <div className="rounded-card border border-border bg-surface-1/70 p-2">
+                      <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Revenue generated</p>
+                      <p className="mt-1 font-medium text-text-primary">{deployment.revenue}</p>
+                    </div>
+                    <div className="rounded-card border border-border bg-surface-1/70 p-2">
+                      <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Investment deployed</p>
+                      <p className="mt-1 font-medium text-text-primary">{deployment.investmentDeployed}</p>
+                    </div>
+                    <div className="rounded-card border border-border bg-surface-1/70 p-2">
+                      <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Deployment date</p>
+                      <p className="mt-1 font-medium text-text-primary">{deployment.deploymentDate}</p>
+                    </div>
+                    <div className="rounded-card border border-border bg-surface-1/70 p-2">
+                      <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Users served</p>
+                      <p className="mt-1 font-medium text-text-primary">{deployment.users}</p>
+                    </div>
+                    <div className="rounded-card border border-border bg-surface-1/70 p-2">
+                      <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Monthly revenue</p>
+                      <p className="mt-1 font-medium text-text-primary">{deployment.revenue}</p>
+                    </div>
+                    <div className="rounded-card border border-border bg-surface-1/70 p-2">
+                      <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Current yield</p>
+                      <p className="mt-1 font-medium text-text-primary">{deployment.yield}</p>
+                    </div>
+                    <div className="rounded-card border border-border bg-surface-1/70 p-2 col-span-2">
+                      <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Infrastructure funded</p>
+                      <p className="mt-1 font-medium text-text-primary">{deployment.assets}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {activeMedia && (

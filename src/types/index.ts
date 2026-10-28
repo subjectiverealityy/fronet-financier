@@ -276,7 +276,7 @@ export interface Commitment {
 // Utility
 
 export type DashboardView = 'all' | string // 'all' or a location id
-export type DashboardTab = 'revenue' | 'transactions' | 'network' | 'deployments' | 'referrals'
+export type DashboardTab = 'revenue' | 'transactions' | 'network'
 
 // Payouts 
 

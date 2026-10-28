@@ -1,9 +1,11 @@
 import { useDashboardStore } from '@/store/dashboardStore'
 import { KpiCard } from '@/components/ui'
+import { useNavigate } from 'react-router-dom'
 import {
   trackDashboardCustomRangeEnd,
   trackDashboardCustomRangeStart,
   trackDashboardPeriodChanged,
+  trackMarketplaceBannerClicked,
 } from '@/lib/ga'
 import { getMonthName, formatNaira, formatMoney, cn } from '@/lib/utils'
 import { useInvestorDashboard } from '@/hooks/useInvestorDashboard'
@@ -91,8 +93,9 @@ export default PeriodSelector
 
 // ─── KPIStrip ────────────────────────────────────────────────────────────────
 
-// When restoring the payout card, add back its prop: onRequestPayout: () => void
-export function KPIStrip({ onBrowseOffers }: { onBrowseOffers: () => void }) {
+// When restoring the payout card, add back its prop: { onRequestPayout }: { onRequestPayout: () => void }
+export function KPIStrip() {
+  const navigate = useNavigate()
   const { selectedView, selectedMonth, selectedYear } = useDashboardStore()
   const kpis = MOCK_KPIS
   const portfolio = useInvestorDashboard().data?.portfolio
@@ -105,6 +108,12 @@ export function KPIStrip({ onBrowseOffers }: { onBrowseOffers: () => void }) {
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Links to the deployments and referrals pages */}
+      <div className="flex gap-2">
+        <PageLinkBanner title="Deployments" subtitle="Your funded sites" onClick={() => navigate('/deployments')} />
+        <PageLinkBanner title="Referrals" subtitle="Share your code" onClick={() => navigate('/referrals')} />
+      </div>
+
       <div className="flex gap-2">
         {/* Earnings highlight */}
         <div className="bg-brand/10 border border-brand/20 rounded-card p-4 flex-1 md:flex-[1.4] md:flex md:flex-col md:justify-center">
@@ -145,7 +154,13 @@ export function KPIStrip({ onBrowseOffers }: { onBrowseOffers: () => void }) {
           </button>
         </div> */}
 
-        <MarketplaceBanner onClick={onBrowseOffers} className="flex-1" />
+        <MarketplaceBanner
+          className="flex-1"
+          onClick={() => {
+            trackMarketplaceBannerClicked()
+            navigate('/marketplace')
+          }}
+        />
       </div>
 
       {/* KPI grid */}
@@ -161,6 +176,28 @@ export function KPIStrip({ onBrowseOffers }: { onBrowseOffers: () => void }) {
         <KpiCard label="Failed transactions" value={kpis.failedTxns} danger />
       </div>
     </div>
+  )
+}
+
+// ─── PageLinkBanner ──────────────────────────────────────────────────────────
+
+// Same look as the marketplace banner, for links to other dashboard pages.
+function PageLinkBanner({ title, subtitle, onClick }: { title: string; subtitle: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex-1 min-w-0 bg-brand/10 border border-brand/20 rounded-card px-4 py-3.5 flex items-center justify-between gap-2 text-left active:scale-[0.98] transition-transform"
+    >
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-text-primary truncate">{title}</p>
+        <p className="text-xs text-text-tertiary mt-0.5 truncate">{subtitle}</p>
+      </div>
+      <span className="w-8 h-8 bg-brand/15 rounded-full flex items-center justify-center flex-shrink-0">
+        <svg className="w-4 h-4 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </span>
+    </button>
   )
 }
 
