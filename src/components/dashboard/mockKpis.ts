@@ -14,3 +14,14 @@ export const MOCK_KPIS = {
   payoutBalance: 173790,
   payoutStatus: 'none' as 'none' | 'pending',
 }
+
+// Revenue share earnings per location. ids match the location dropdown, so a
+// selected location can find its row.
+export const MOCK_LOCATION_EARNINGS = [
+  { id: 'bims', name: 'Bims Hostel', sub: 'University of Ilorin', stake: 15, amt: 16929, color: '#03c9a6' },
+  { id: 'akoka', name: 'Akoka Heights Hostel', sub: 'University of Lagos', stake: 100, amt: 89400, color: '#3d8eff' },
+  { id: 'canaanland', name: 'Canaanland Lodge', sub: 'Covenant University', stake: 32, amt: 4902, color: '#f5a623' },
+]
+
+// Your share of a location's gross revenue = your stake × the financiers' share.
+export const shareOfGrossPct = (stakePct: number) => (stakePct * MOCK_KPIS.financierSharePct) / 100

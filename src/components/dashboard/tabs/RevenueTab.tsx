@@ -2,16 +2,23 @@ import { useEffect, useState } from 'react'
 import { Card, CardHeader, Dot, StatusBadge, ViewAllFooter } from '@/components/ui'
 import { formatNaira, formatNairaFull, formatGB, formatMoney } from '@/lib/utils'
 import { useInvestorDashboard } from '@/hooks/useInvestorDashboard'
-import type { InvestorPortfolio } from '@/types'
+import type { FixedReturnInvestment, FixedReturnPayment, InvestorPortfolio } from '@/types'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/authStore'
 import { getMyReferrals } from '@/lib/api'
+import { SAMPLE_FIXED_RETURNS, SHOW_SAMPLE_FIXED_RETURNS } from '../sampleFixedReturns'
+import { MOCK_LOCATION_EARNINGS, shareOfGrossPct } from '../mockKpis'
 
 // ─── Revenue Tab ─────────────────────────────────────────────────────────────
 
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })
+
 // PLACEHOLDER: the investor dashboard endpoint has no income, yield or projection
-// figures yet. Replace these once the backend provides them.
+// figures yet. Replace these once the backend provides them. These only apply to
+// revenue share investments (variable income over 36 months), so they're shown in
+// the revenue share card rather than the portfolio-wide summary.
 const PLACEHOLDER_METRICS = {
   netIncome: formatNaira(326400),
   netYield: '13.1%',
@@ -19,18 +26,27 @@ const PLACEHOLDER_METRICS = {
   projectedReturn3y: formatNaira(1180000),
 }
 
+const REVENUE_SHARE_METRICS = [
+  { label: 'Net income', value: PLACEHOLDER_METRICS.netIncome },
+  { label: 'Net % yield', value: PLACEHOLDER_METRICS.netYield },
+  { label: 'Projected annualized yield', value: PLACEHOLDER_METRICS.projectedYield },
+  { label: 'Projected return over 36 months', value: PLACEHOLDER_METRICS.projectedReturn3y },
+]
+
 // Real figures from GET /financing/dashboard/me/ where they exist; '—' while loading or unavailable.
+// Covers both revenue share and fixed-return investments.
 function investmentMetrics(portfolio?: InvestorPortfolio) {
   const money = (amount: number) => (portfolio ? formatMoney(amount, portfolio.currency) : '—')
   const p = portfolio
   return [
     { label: 'Initial investment amount', value: money(Number(p?.confirmed_investment_amount)) },
     { label: 'Confirmed investments', value: p ? String(p.confirmed_investment_count) : '—' },
-    { label: 'Net income', value: PLACEHOLDER_METRICS.netIncome },
+    // Moved to the revenue share card: these are revenue share figures, not portfolio-wide.
+    // { label: 'Net income', value: PLACEHOLDER_METRICS.netIncome },
     { label: 'Earnings to date', value: money(Number(p?.distribution_paid) + Number(p?.distribution_available)) },
-    { label: 'Net % yield', value: PLACEHOLDER_METRICS.netYield },
-    { label: 'Projected annualized yield', value: PLACEHOLDER_METRICS.projectedYield },
-    { label: '3-year projected return', value: PLACEHOLDER_METRICS.projectedReturn3y },
+    // { label: 'Net % yield', value: PLACEHOLDER_METRICS.netYield },
+    // { label: 'Projected annualized yield', value: PLACEHOLDER_METRICS.projectedYield },
+    // { label: '3-year projected return', value: PLACEHOLDER_METRICS.projectedReturn3y },
     // Backend values the dashboard didn't show before.
     // Hidden for now: total of commitments not yet confirmed by payment.
     // { label: 'Pending payment verification', value: money(Number(p?.pending_commitment_amount)) },
@@ -81,12 +97,6 @@ const DEPLOYMENTS = [
   },
 ]
 
-const INVESTMENT_PERFORMANCE_ROWS = [
-  { name: 'Bims Hostel', sub: 'University of Ilorin', stake: 15, amt: 16929, color: '#03c9a6' },
-  { name: 'Akoka Heights Hostel', sub: 'University of Lagos', stake: 100, amt: 89400, color: '#3d8eff' },
-  { name: 'Canaanland Lodge', sub: 'Covenant University', stake: 32, amt: 4902, color: '#f5a623' },
-]
-
 export function RevenueTab() {
   const { selectedView } = useDashboardStore()
   const { data: investorDashboard, isError: portfolioError } = useInvestorDashboard()
@@ -95,23 +105,28 @@ export function RevenueTab() {
   // const actualTotal = 510000
   // const variance = actualTotal - projectedTotal
   // const variancePct = Math.round((variance / projectedTotal) * 100)
-  const cumulativeAmount = INVESTMENT_PERFORMANCE_ROWS.reduce((sum, row) => sum + row.amt, 0)
+  const cumulativeAmount = MOCK_LOCATION_EARNINGS.reduce((sum, row) => sum + row.amt, 0)
+  const selectedRow = MOCK_LOCATION_EARNINGS.find((row) => row.id === selectedView)
 
   return (
     <>
+      <FixedReturnsCard />
+
       <Card className="border-brand/30 bg-brand/5">
         <CardHeader>
           <div>
-            <p className="card-title">Investment performance</p>
+            <p className="card-title">Revenue share performance</p>
             <p className="card-subtitle">
               {selectedView === 'all'
-                ? 'Cumulative earnings across all deployments'
-                : `15% stake · 6% of gross · Bims Hostel`}
+                ? 'Earnings rise and fall with hostel revenue, for 36 months'
+                : selectedRow
+                  ? `${selectedRow.stake}% stake · ${shareOfGrossPct(selectedRow.stake)}% of gross · ${selectedRow.name}`
+                  : 'No revenue share investment at this location'}
             </p>
           </div>
           <div className="text-right">
             <p className="text-sm font-medium text-brand">
-              {selectedView === 'all' ? formatNaira(cumulativeAmount) : formatNaira(16929)}
+              {selectedView === 'all' ? formatNaira(cumulativeAmount) : formatNaira(selectedRow?.amt ?? 0)}
             </p>
             <p className="text-xs text-text-tertiary mt-0.5">
               {selectedView === 'all' ? 'Your cumulative earnings' : 'Your earnings'}
@@ -121,7 +136,7 @@ export function RevenueTab() {
 
         {selectedView === 'all' && (
           <div>
-            {INVESTMENT_PERFORMANCE_ROWS.map((loc) => (
+            {MOCK_LOCATION_EARNINGS.map((loc) => (
               <div key={loc.name} className="row-item">
                 <div className="flex items-center gap-2">
                   <Dot color={loc.color} />
@@ -136,6 +151,14 @@ export function RevenueTab() {
                 </div>
               </div>
             ))}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-4">
+              {REVENUE_SHARE_METRICS.map((metric) => (
+                <div key={metric.label} className="rounded-card border border-border bg-surface-2/60 p-3">
+                  <p className="text-[10px] uppercase tracking-wider text-text-tertiary">{metric.label}</p>
+                  <p className="mt-1 text-base font-semibold text-text-primary">{metric.value}</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </Card>
@@ -244,6 +267,135 @@ export function RevenueTab() {
         </Card> */}
       </div>
     </>
+  )
+}
+
+// ─── Fixed returns ───────────────────────────────────────────────────────────
+
+// Swap for the backend's fixed-return investments once it sends them.
+const FIXED_RETURN_INVESTMENTS: FixedReturnInvestment[] = SHOW_SAMPLE_FIXED_RETURNS ? SAMPLE_FIXED_RETURNS : []
+
+const PAYMENT_LABELS: Record<FixedReturnPayment['kind'], string> = {
+  return: 'Return',
+  principal: 'Principal',
+  principal_and_return: 'Principal + return',
+}
+
+const PAYOUT_PLAN_LABELS: Record<FixedReturnInvestment['payout_plan'], string> = {
+  early_return: 'Return paid early, principal at maturity',
+  at_maturity: 'Paid in one payment at maturity',
+}
+
+// Whole months since payment was verified, capped at the term.
+function monthsElapsed(investment: FixedReturnInvestment) {
+  const start = new Date(investment.start_date)
+  const now = new Date()
+  let months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth())
+  if (now.getDate() < start.getDate()) months -= 1
+  return Math.min(investment.term_months, Math.max(0, months))
+}
+
+function FixedReturnsCard() {
+  const { selectedView } = useDashboardStore()
+  const investments = selectedView === 'all'
+    ? FIXED_RETURN_INVESTMENTS
+    : FIXED_RETURN_INVESTMENTS.filter((investment) => investment.location_id === selectedView)
+
+  // A single location with no fixed-return investments just doesn't show the card.
+  if (selectedView !== 'all' && investments.length === 0) return null
+
+  // Sample data is all NGN; once real data arrives, totals across currencies would need splitting.
+  const currency = investments[0]?.currency ?? 'NGN'
+  const payments = investments.flatMap((investment) => investment.payments)
+  const totals = [
+    { label: 'Invested', value: investments.reduce((sum, i) => sum + i.principal, 0) },
+    { label: 'Expected return', value: investments.reduce((sum, i) => sum + (i.principal * i.return_rate_pct) / 100, 0) },
+    { label: 'Received', value: payments.filter((p) => p.paid_at).reduce((sum, p) => sum + p.amount, 0) },
+    { label: 'Still to receive', value: payments.filter((p) => !p.paid_at).reduce((sum, p) => sum + p.amount, 0) },
+  ]
+
+  return (
+    <Card className="border-brand/30 bg-brand/5">
+      <CardHeader>
+        <div>
+          <p className="card-title">Fixed returns</p>
+          <p className="card-subtitle">A set return on your investment, counted from payment verification</p>
+        </div>
+      </CardHeader>
+
+      {investments.length === 0 ? (
+        <p className="p-4 text-sm text-text-tertiary">
+          Your fixed-return investments will show here soon.
+        </p>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-4">
+            {totals.map((total) => (
+              <div key={total.label} className="rounded-card border border-border bg-surface-2/60 p-3">
+                <p className="text-[10px] uppercase tracking-wider text-text-tertiary">{total.label}</p>
+                <p className="mt-1 text-base font-semibold text-text-primary">{formatMoney(total.value, currency)}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="px-4 pb-4 space-y-2">
+            {investments.map((investment) => {
+              const elapsed = monthsElapsed(investment)
+              const expectedReturn = (investment.principal * investment.return_rate_pct) / 100
+              return (
+                <div key={investment.id} className="rounded-card border border-border bg-surface-2/60 p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-text-primary">{investment.offer_title}</p>
+                      <p className="text-xs text-text-tertiary mt-0.5">
+                        {formatMoney(investment.principal, investment.currency)} · {investment.return_rate_pct}% over {investment.term_months} months
+                      </p>
+                      <p className="text-xs text-text-tertiary mt-0.5">{PAYOUT_PLAN_LABELS[investment.payout_plan]}</p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-sm font-semibold text-brand">
+                        {formatMoney(investment.principal + expectedReturn, investment.currency)}
+                      </p>
+                      <p className="text-xs text-text-tertiary mt-0.5">Total you receive</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between text-xs text-text-tertiary mb-1">
+                      <span>{elapsed} of {investment.term_months} months</span>
+                      <span>Matures {formatDate(investment.maturity_date)}</span>
+                    </div>
+                    <div
+                      className="h-1.5 rounded-full bg-surface-1 overflow-hidden"
+                      role="progressbar"
+                      aria-valuemin={0}
+                      aria-valuemax={investment.term_months}
+                      aria-valuenow={elapsed}
+                      aria-label={`${elapsed} of ${investment.term_months} months`}
+                    >
+                      <div className="h-full bg-brand" style={{ width: `${(elapsed / investment.term_months) * 100}%` }} />
+                    </div>
+                  </div>
+
+                  <div className="mt-3 space-y-1">
+                    {investment.payments.map((payment) => (
+                      <div key={`${payment.kind}-${payment.due_date}`} className="flex items-center justify-between text-xs">
+                        <span className="text-text-secondary">
+                          {PAYMENT_LABELS[payment.kind]} · {formatMoney(payment.amount, investment.currency)}
+                        </span>
+                        <span className={payment.paid_at ? 'text-brand' : 'text-text-tertiary'}>
+                          {payment.paid_at ? `Paid ${formatDate(payment.paid_at)}` : `Due ${formatDate(payment.due_date)}`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </>
+      )}
+    </Card>
   )
 }
 
@@ -515,9 +667,6 @@ const GATEWAY = [
 //   { name: '2nd Floor 1', downloadGB: 144.79, uploadGB: 20.34, totalGB: 165.13, activeClients: 1 },
 // ]
 
-const formatReferralDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })
-
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
 const COMMISSION_MONTHS = 6
@@ -628,7 +777,7 @@ export function ReferralsTab() {
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-text-primary truncate">{referral.email}</p>
                   <p className="text-xs text-text-tertiary mt-0.5">
-                    Started {formatReferralDate(referral.referred_at)} · {capitalize(referral.status)}
+                    Started {formatDate(referral.referred_at)} · {capitalize(referral.status)}
                   </p>
                 </div>
                 <div className="text-right flex-shrink-0">

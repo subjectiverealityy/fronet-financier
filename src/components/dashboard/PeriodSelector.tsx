@@ -11,7 +11,7 @@ import { getMonthName, formatNaira, formatMoney, cn } from '@/lib/utils'
 import { useInvestorDashboard } from '@/hooks/useInvestorDashboard'
 import { useQuery } from '@tanstack/react-query'
 import { getOffers } from '@/lib/api'
-import { MOCK_KPIS } from './mockKpis'
+import { MOCK_KPIS, MOCK_LOCATION_EARNINGS, shareOfGrossPct } from './mockKpis'
 
 const RANGE_OPTIONS = [
   { id: '7d', label: 'Last 7 days' },
@@ -99,6 +99,7 @@ export function KPIStrip() {
   const { selectedView, selectedMonth, selectedYear } = useDashboardStore()
   const kpis = MOCK_KPIS
   const portfolio = useInvestorDashboard().data?.portfolio
+  const selectedLocation = MOCK_LOCATION_EARNINGS.find((loc) => loc.id === selectedView)
   // Earnings = distributions already paid + distributions available to pay out.
   const totalEarnings = portfolio
     ? formatMoney(Number(portfolio.distribution_paid) + Number(portfolio.distribution_available), portfolio.currency)
@@ -122,12 +123,14 @@ export function KPIStrip() {
           </p>
           {/* The backend only has portfolio-wide totals, so single locations stay on placeholder figures. */}
           <p className="text-2xl font-semibold text-brand">
-            {selectedView === 'all' ? totalEarnings : formatNaira(kpis.financierEarnings)}
+            {selectedView === 'all' ? totalEarnings : formatNaira(selectedLocation?.amt ?? 0)}
           </p>
           <p className="text-[11px] text-brand/50 mt-0.5">
             {selectedView === 'all'
               ? `Across all your deployments`
-              : `${kpis.myStakePct}% stake · ${kpis.financierSharePct}% of gross revenue`}
+              : selectedLocation
+                ? `${selectedLocation.stake}% stake · ${shareOfGrossPct(selectedLocation.stake)}% of gross revenue`
+                : 'No revenue share investment here'}
             {selectedView !== 'all' ? ` · ${getMonthName(selectedMonth)} ${selectedYear}` : ''}
           </p>
           {/* Portfolio totals from the backend cover all time; single locations use placeholder data. */}

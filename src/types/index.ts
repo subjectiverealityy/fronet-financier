@@ -308,6 +308,35 @@ export interface InvestorDashboard {
   recent_distributions: unknown[]
 }
 
+// Fixed-return investments. PROPOSED shape: the backend doesn't send these yet.
+// Rate, term and payment dates come from the backend so a different offer
+// (e.g. 25% or 18 months) needs no frontend change.
+
+export type FixedReturnPayoutPlan =
+  | 'early_return' // return paid early (at 3 months), principal at maturity
+  | 'at_maturity' // principal + return in one payment at maturity
+
+export interface FixedReturnPayment {
+  kind: 'return' | 'principal' | 'principal_and_return'
+  amount: number
+  due_date: string
+  paid_at: string | null
+}
+
+export interface FixedReturnInvestment {
+  id: number
+  offer_title: string
+  location_id: string // matches the dashboard location dropdown
+  currency: string
+  principal: number
+  return_rate_pct: number // e.g. 30
+  term_months: number // e.g. 12
+  payout_plan: FixedReturnPayoutPlan
+  start_date: string // when payment was verified
+  maturity_date: string
+  payments: FixedReturnPayment[]
+}
+
 // KYC settings (GET/PATCH /api/v1/financing/kyc/me/). Only these two fields are
 // writable; NIN, BVN, passport and bank details must never be sent here.
 export interface KycSettings {
